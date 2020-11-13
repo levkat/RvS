@@ -1,7 +1,11 @@
 package programmieraufgaben;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Scanner;
+
+import static programmieraufgaben.ipValidator.checkIp;
 
 public class PackageCreator {
 
@@ -14,9 +18,35 @@ public class PackageCreator {
      * @return Gibt das als Parameter übergebene Objekt, dass mit den abgefragten Werten befüllt wurde zurück
      */
     public DataPackage fillParameters(DataPackage dataPackage) {
+        String eingabe;
+        int validateIPversion;
+        String senderAddress;
+        String reciverAddress;
+        Scanner input = new Scanner(System.in);
+        System.out.println("Bitte wählen Sie die IP Version aus(IPv4/IPv6):");
+        int validatedInt = Integer.parseInt(String.valueOf(input.nextInt()));
+        System.out.println(validatedInt);
+        if (validatedInt == 4 || validatedInt == 6) {
+            dataPackage.setVersion(validatedInt);
+            System.out.println("Bitte geben sie die Adresse des Senders ein:");
+            senderAddress = input.next();
+            System.out.println(senderAddress);
+            if(checkIp(validatedInt, senderAddress)) {
+               dataPackage.setSenderAddress(senderAddress);
+            }
+            System.out.println("Bitte geben sie die Adresse des Empfängers ein:");
+            reciverAddress = input.next();
+            if(checkIp(validatedInt, reciverAddress)){
+                dataPackage.setReciverAddress(reciverAddress);
+            }
+        }
+        else
+        {
+            throw new IllegalArgumentException("Keine IPv"+validatedInt+". Unterstützt sind nur folgende IPv: 4 / 6");
+        }
 
         return dataPackage;
-    }
+    }//inetAddress.getHostAddress());
 
     /**
      * Aus dem als Parameter übergebenen Paket sollen die Informationen
@@ -27,7 +57,7 @@ public class PackageCreator {
      */
     public List<DataPackage> splitPackage(DataPackage dataPackage) {
         List<DataPackage> dataPackages = new LinkedList<>();
-
+        dataPackages.add(dataPackage); //TODO add spliting mechanism
         return dataPackages;
     }
 
@@ -37,6 +67,9 @@ public class PackageCreator {
      * @param dataPackages Hier wird die Liste übergeben, deren Elemente in die Kommandozeile ausgegeben werden sollen
      */
     public void printOutPackage(List<DataPackage> dataPackages) {
-
+        for (DataPackage dataPackage : dataPackages) {
+            dataPackage.printAll();
+        }
     }
+
 }
