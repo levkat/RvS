@@ -97,7 +97,7 @@ public class PackageCreator {
      * @param dataPackages Hier wird die Liste übergeben, deren Elemente in die Kommandozeile ausgegeben werden sollen
      */
     public void printOutPackage(List<DataPackage> dataPackages) {
-        System.out.println("Es sind " + dataPackages.size() + " Datenpakete notwendig." + System.lineSeparator());
+        System.out.println(System.lineSeparator() + "Es sind " + dataPackages.size() + " Datenpakete notwendig." + System.lineSeparator());
         for (DataPackage dataPackage : dataPackages) {
             dataPackage.printMessage();
         }
