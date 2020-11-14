@@ -39,6 +39,29 @@ public class PackageCreator {
             if(checkIp(validatedInt, reciverAddress)){
                 dataPackage.setReciverAddress(reciverAddress);
             }
+            System.out.println("Bitte geben Sie Ihre Nachricht ein:");
+            StringBuilder stringBuilder = new StringBuilder();
+            String [] parts;
+            boolean hasRun = false;
+            while (true){
+                String check = input.nextLine();
+                if(check.contains("<CR><LF>")){
+                    parts=check.split("<CR><LF>");
+                    stringBuilder.append(parts[0]);
+                    break;
+                }
+                if (!hasRun){
+                    hasRun = true;
+                }
+                else {
+                    if (input.hasNextLine()) {
+                        stringBuilder.append("\\n");
+                    }
+                }
+                stringBuilder.append(input.nextLine());
+                }
+
+            dataPackage.setMessage(stringBuilder.toString());
         }
         else
         {

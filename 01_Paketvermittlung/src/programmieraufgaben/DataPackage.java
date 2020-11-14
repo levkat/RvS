@@ -73,7 +73,9 @@ public class DataPackage {
                 + System.lineSeparator()
                 + "Empfänger:" + reciverAddress
                 + System.lineSeparator()
-                + "Nachricht:" + message);
+                + "Nachricht:"
+                + System.lineSeparator()
+                + message);
     }
 
     /**
