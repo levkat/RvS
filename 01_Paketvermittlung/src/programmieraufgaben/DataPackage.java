@@ -21,6 +21,14 @@ public class DataPackage {
     public DataPackage(int dataPackageLength) {
         this.dataPackageLength = dataPackageLength;
     }
+    public DataPackage(int dataPackageLength, int version, String senderAddress, String receiverAddress, String message, int seqNum){
+        this.dataPackageLength = dataPackageLength;
+        this.version = version;
+        this.senderAddress = senderAddress;
+        this.reciverAddress = receiverAddress;
+        this.message = message;
+        this.seqNum = seqNum;
+    }
     public void setVersion(int version){
         this.version = version;
     }
@@ -76,6 +84,17 @@ public class DataPackage {
                 + "Nachricht:"
                 + System.lineSeparator()
                 + message);
+    }
+    public void printMessage(){
+        System.out.println( "Version:" + version
+                + System.lineSeparator()
+                + "Absender:" + senderAddress
+                + System.lineSeparator()
+                + "Empfänger:" + reciverAddress
+                + System.lineSeparator()
+                + "Datenteil-Länge:" + message.length()
+                + System.lineSeparator()
+                + "Datenteil:" + message + "\n");
     }
 
     /**

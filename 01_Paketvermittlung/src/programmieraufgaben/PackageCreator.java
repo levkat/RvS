@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
+import static programmieraufgaben.MessageSplitter.splitString;
 import static programmieraufgaben.ipValidator.checkIp;
 
 public class PackageCreator {
@@ -55,7 +56,7 @@ public class PackageCreator {
                 }
                 else {
                     if (input.hasNextLine()) {
-                        stringBuilder.append("\\n");
+                        stringBuilder.append(" \n");
                     }
                 }
                 stringBuilder.append(input.nextLine());
@@ -65,9 +66,9 @@ public class PackageCreator {
         }
         else
         {
-            throw new IllegalArgumentException("Keine IPv"+validatedInt+". Unterstützt sind nur folgende IPv: 4 / 6");
+            throw new IllegalArgumentException("Keine IPv"+validatedInt+".  Unterstützt sind nur folgende IPv: 4 / 6");
         }
-
+        dataPackage.printAll();
         return dataPackage;
     }//inetAddress.getHostAddress());
 
@@ -80,7 +81,13 @@ public class PackageCreator {
      */
     public List<DataPackage> splitPackage(DataPackage dataPackage) {
         List<DataPackage> dataPackages = new LinkedList<>();
-        dataPackages.add(dataPackage); //TODO add spliting mechanism
+        int sequence = 1;
+        //dataPackages.add(dataPackage); //TODO add spliting mechanism
+        List<String> splitted = splitString(dataPackage.getMessage(),dataPackage.getDataPackageLength());
+        for (String s : splitted) {
+            dataPackages.add(new DataPackage(dataPackage.getDataPackageLength(), dataPackage.getVersion(), dataPackage.getsenderAddress(), dataPackage.getReciverAddress(), s, sequence));
+            //System.out.println(s); für Testzwecke
+        }
         return dataPackages;
     }
 
@@ -90,8 +97,9 @@ public class PackageCreator {
      * @param dataPackages Hier wird die Liste übergeben, deren Elemente in die Kommandozeile ausgegeben werden sollen
      */
     public void printOutPackage(List<DataPackage> dataPackages) {
+        System.out.println("Es sind " + dataPackages.size() + " Datenpakete notwendig." + System.lineSeparator());
         for (DataPackage dataPackage : dataPackages) {
-            dataPackage.printAll();
+            dataPackage.printMessage();
         }
     }
 
