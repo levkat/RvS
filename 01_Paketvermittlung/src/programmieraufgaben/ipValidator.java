@@ -11,10 +11,21 @@ public class ipValidator {
     private static final Pattern pattern_ipv6 = Pattern.compile(IPV6_PATTERN);
     private static final Pattern pattern_ipvgeneral = Pattern.compile(IP_PATTERN);
 
+
+
+
+    public static boolean checkIPversion(int ipVersion) {
+        if(!(String.valueOf(ipVersion).length() == 1 && ipVersion == 4 || ipVersion == 6)){
+            throw new IllegalArgumentException("Die von Ihnen eingegebene IP Version: IPv" + ipVersion + " ist nicht gültig! \nBitte geben sie die IP Version als Zahl ein, gültige Versionen derzeit sind: 4/6");
+        }
+        else
+            return true;
+    }
+
     public static boolean checkIp(int ipVersion, String address) {
         boolean ipTest = false;
         Pattern ipPattern;
-        if (ipVersion == 4 || ipVersion == 6) {
+        if (checkIPversion(ipVersion)) {
             if(!isvalidtedIP(pattern_ipvgeneral, address)){throw new IllegalArgumentException(address +" ist keine gültige IP Adresse!");}
             try {
                 switch (ipVersion) {

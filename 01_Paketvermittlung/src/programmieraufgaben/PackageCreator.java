@@ -1,11 +1,11 @@
 package programmieraufgaben;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
 import static programmieraufgaben.MessageSplitter.splitString;
+import static programmieraufgaben.ipValidator.checkIPversion;
 import static programmieraufgaben.ipValidator.checkIp;
 
 public class PackageCreator {
@@ -19,27 +19,25 @@ public class PackageCreator {
      * @return Gibt das als Parameter übergebene Objekt, dass mit den abgefragten Werten befüllt wurde zurück
      */
     public DataPackage fillParameters(DataPackage dataPackage) {
-        String eingabe;
-        int validateIPversion;
         String senderAddress;
         String reciverAddress;
         Scanner input = new Scanner(System.in);
+        try{
         System.out.println("Bitte wählen Sie die IP Version aus(IPv4/IPv6):");
-        int validatedInt = Integer.parseInt(String.valueOf(input.nextInt()));
-        System.out.println(validatedInt);
-        if (validatedInt == 4 || validatedInt == 6) {
-            dataPackage.setVersion(validatedInt);
+        int ipVersion = Integer.parseInt(String.valueOf(input.nextInt()));
+        checkIPversion(ipVersion);
+        System.out.println(ipVersion);
+            dataPackage.setVersion(ipVersion);
             System.out.println("Bitte geben sie die Adresse des Senders ein:");
             senderAddress = input.next();
             System.out.println(senderAddress);
-            if(checkIp(validatedInt, senderAddress)) {
+            if(checkIp(ipVersion, senderAddress)) {
                dataPackage.setSenderAddress(senderAddress);
             }
             System.out.println("Bitte geben sie die Adresse des Empfängers ein:");
             reciverAddress = input.next();
-            if(checkIp(validatedInt, reciverAddress)){
-                dataPackage.setReciverAddress(reciverAddress);
-            }
+            checkIp(ipVersion, reciverAddress);
+            dataPackage.setReciverAddress(reciverAddress);
             System.out.println("Bitte geben Sie Ihre Nachricht ein:");
             StringBuilder stringBuilder = new StringBuilder();
             String [] parts;
@@ -59,14 +57,14 @@ public class PackageCreator {
                         stringBuilder.append(" \n");
                     }
                 }
-                stringBuilder.append(input.nextLine());
+                stringBuilder.append(check);
                 }
 
             dataPackage.setMessage(stringBuilder.toString());
-        }
-        else
+        } catch(Exception e)
         {
-            throw new IllegalArgumentException("Keine IPv"+validatedInt+".  Unterstützt sind nur folgende IPv: 4 / 6");
+            System.out.println(e.getMessage());
+            System.exit(1);
         }
         dataPackage.printAll();
         return dataPackage;
