@@ -54,7 +54,7 @@ public class PackageCreator {
                 }
                 else {
                     if (input.hasNextLine()) {
-                        stringBuilder.append(" \n");
+                        stringBuilder.append(" \\n");
                     }
                 }
                 stringBuilder.append(check);
