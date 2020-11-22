@@ -80,6 +80,7 @@ public class PackageCreator {
         List<String> splitted = splitString(dataPackage.getMessage(),dataPackage.getDataPackageLength());
         for (String s : splitted) {
             dataPackages.add(new DataPackage(dataPackage.getDataPackageLength(), dataPackage.getVersion(), dataPackage.getsenderAddress(), dataPackage.getReciverAddress(), s, sequence));
+            sequence++;
             //System.out.println(s); für Testzwecke
         }
         return dataPackages;

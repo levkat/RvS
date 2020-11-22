@@ -92,6 +92,8 @@ public class DataPackage {
                 + System.lineSeparator()
                 + "Empfänger:" + reciverAddress
                 + System.lineSeparator()
+                + "Paketlaufnummer:" + seqNum
+                + System.lineSeparator()
                 + "Datenteil-Länge:" + message.length()
                 + System.lineSeparator()
                 + "Datenteil:" + message + "\n");
