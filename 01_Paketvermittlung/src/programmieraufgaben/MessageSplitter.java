@@ -34,16 +34,16 @@ public class MessageSplitter {
     }*/
     public static int LongestWordLength(String str)
     {
+        String specialChars = "\\\\\\.\\[\\]\\{\\}\\(\\)\\<\\>\\*\\+\\-\\=\\!\\?\\^\\$\\|";
         int n = str.length();
         int res = 0, curr_len = 0;
         for (int i = 0; i < n; i++) {
-
-            if (str.charAt(i) != ' ')
+            if (str.charAt(i) != ' '  || !specialChars.contains(String.valueOf(str.charAt(i))))
                 curr_len++;
-            else {
+            else
                 res = Math.max(res, curr_len);
-                curr_len = 0;
-            }
+            curr_len = 0;
+
         }
         return Math.max(res, curr_len);
     }

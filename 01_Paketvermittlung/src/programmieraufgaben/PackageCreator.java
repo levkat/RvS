@@ -40,26 +40,22 @@ public class PackageCreator {
             dataPackage.setReciverAddress(reciverAddress);
             System.out.println("Bitte geben Sie Ihre Nachricht ein:");
             StringBuilder stringBuilder = new StringBuilder();
+            String check = input.nextLine();
+            stringBuilder.append(check);
             String [] parts;
             boolean hasRun = false;
             while (true){
-                String check = input.nextLine();
-                if(check.contains("<CR><LF>")){
-                    parts=check.split("<CR><LF>");
-                    stringBuilder.append(parts[0]);
+                check = input.nextLine();
+                if(check.equals(".")){
+                    stringBuilder.deleteCharAt(stringBuilder.length()-1);
+                    stringBuilder.deleteCharAt(stringBuilder.length()-1);
                     break;
                 }
-                if (!hasRun){
-                    hasRun = true;
-                }
-                else {
+                stringBuilder.append(check);
                     if (input.hasNextLine()) {
-                        stringBuilder.append(" \n");
+                        stringBuilder.append("\\n");
                     }
                 }
-                stringBuilder.append(check);
-                }
-
             dataPackage.setMessage(stringBuilder.toString());
         } catch(Exception e)
         {
