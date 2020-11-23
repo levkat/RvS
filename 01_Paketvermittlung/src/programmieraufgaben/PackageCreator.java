@@ -1,5 +1,6 @@
 package programmieraufgaben;
 
+import javax.swing.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
@@ -31,12 +32,9 @@ public class PackageCreator {
             System.out.println("Bitte geben sie die Adresse des Senders ein:");
             senderAddress = input.next();
             System.out.println(senderAddress);
-            if(checkIp(ipVersion, senderAddress)) {
-               dataPackage.setSenderAddress(senderAddress);
-            }
+            dataPackage.setSenderAddress(senderAddress);
             System.out.println("Bitte geben sie die Adresse des Empfängers ein:");
             reciverAddress = input.next();
-            checkIp(ipVersion, reciverAddress);
             dataPackage.setReciverAddress(reciverAddress);
             System.out.println("Bitte geben Sie Ihre Nachricht ein:");
             StringBuilder stringBuilder = new StringBuilder();
@@ -78,10 +76,34 @@ public class PackageCreator {
         int sequence = 1;
         //dataPackages.add(dataPackage); //TODO add spliting mechanism
         List<String> splitted = splitString(dataPackage.getMessage(),dataPackage.getDataPackageLength());
-        for (String s : splitted) {
-            dataPackages.add(new DataPackage(dataPackage.getDataPackageLength(), dataPackage.getVersion(), dataPackage.getsenderAddress(), dataPackage.getReciverAddress(), s, sequence));
-            sequence++;
+        String lastWord = "";
+        for (int i = 0; i < splitted.size(); i++) {
+            if (splitted.get(i).length() + lastWord.length() <= dataPackage.getDataPackageLength()) {
+                lastWord += splitted.get(i);
+            }
+            else
+            {
+                if(lastWord.endsWith(" ")){
+                    String tmp = lastWord;
+                    tmp = tmp.substring(0,tmp.length()-1);
+                    dataPackages.add(new DataPackage(dataPackage.getDataPackageLength(), dataPackage.getVersion(), dataPackage.getsenderAddress(), dataPackage.getReciverAddress(), tmp, sequence));
+                }
+                else {
+                    System.out.println("---------");
+                    System.out.println(lastWord);
+                    dataPackages.add(new DataPackage(dataPackage.getDataPackageLength(), dataPackage.getVersion(), dataPackage.getsenderAddress(), dataPackage.getReciverAddress(), lastWord, sequence));
+                }
+                if (!splitted.get(i).equals(" ")) {
+                    lastWord = splitted.get(i);
+                }else{
+                    lastWord = "";
+                }
+                sequence++;
+            }
             //System.out.println(s); für Testzwecke
+        }
+        if(!lastWord.isEmpty()){
+            dataPackages.add(new DataPackage(dataPackage.getDataPackageLength(), dataPackage.getVersion(), dataPackage.getsenderAddress(), dataPackage.getReciverAddress(), lastWord, sequence));
         }
         return dataPackages;
     }

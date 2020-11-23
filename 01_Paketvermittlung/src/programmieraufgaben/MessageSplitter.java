@@ -10,18 +10,48 @@ public class MessageSplitter {
 
 
     public static List<String> splitString(String msg, int size) {
-        List<String> res = new ArrayList<>();
+        List<String> splittedString = new ArrayList<>();
         if(LongestWordLength(msg) > size) {
             throw new IllegalArgumentException(String.valueOf(LongestWordLength(msg)));
         }
-        Pattern p = Pattern.compile("\\b.{1," + size + "}\\b\\W?"); //(?<=\\)\\b.{1," + (size-1) + "}\\b\\W?|\\b.{1," + (size-1) + "}\\b\\W?
+        String specialChars = "\\\\.\\[\\]\\{\\}\\(\\)\\<\\>\\*\\+\\-\\=\\!\\?\\^\\$\\|\\,";
+        int length = msg.length();
+        String word = "";
+        for (int i = 0; i < length; i++) {
+            if (msg.charAt(i) != ' ' && !specialChars.contains(String.valueOf(msg.charAt(i)))) {
+                if (msg.charAt(i) == 'n' && msg.charAt(i - 1) == '\\') {
+                    splittedString.add("\\n");
+                } else {
+                    word += msg.charAt(i);
+                }
+            } else {
+                if(word.length() > 0) {
+                    splittedString.add(word);
+                }
+                word = "";
+                if(msg.charAt(i) != '\\') {
+                    splittedString.add(String.valueOf(msg.charAt(i)));
+                }
+            }
+        }
+        splittedString.add(word);
+        for(int i = 0; i < splittedString.size() ; i++){
+            System.out.println(splittedString.get(i));
+        }
+        return splittedString;
+    }
+
+
+
+        /*
+        Pattern p = Pattern.compile("[^ ]{" + size  +"}(?<!\\\\(?=n))|(?! {1,"+ size +"})[\\S\\s]{1,"+ size +"}\\b\\W?(?<! |\\\\(?=n))|[!?._,]?"); //(?<=\\)\\b.{1," + (size-1) + "}\\b\\W?|\\b.{1," + (size-1) + "}\\b\\W?
         Matcher m = p.matcher(msg);
         while(m.find()) {
             //System.out.println(m.group().trim());   // Debug
             res.add(m.group());
         }
-        return res;
-    }
+        return res;*/
+
 
 
 
@@ -34,18 +64,23 @@ public class MessageSplitter {
     }*/
     public static int LongestWordLength(String str)
     {
-        String specialChars = "\\\\\\.\\[\\]\\{\\}\\(\\)\\<\\>\\*\\+\\-\\=\\!\\?\\^\\$\\|";
-        int n = str.length();
-        int res = 0, curr_len = 0;
-        for (int i = 0; i < n; i++) {
-            if (str.charAt(i) != ' '  || !specialChars.contains(String.valueOf(str.charAt(i))))
-                curr_len++;
-            else
-                res = Math.max(res, curr_len);
-            curr_len = 0;
-
+        String specialChars = "\\\\.\\[\\]\\{\\}\\(\\)\\<\\>\\*\\+\\-\\=\\!\\?\\^\\$\\|";
+        int length = str.length();
+        int longest = 0, curr_len = 0;
+        for (int i = 0; i < length; i++) {
+            if (str.charAt(i) != ' ' && !specialChars.contains(String.valueOf(str.charAt(i)))) {
+                if (str.charAt(i) == 'n' && str.charAt(i - 1) == '\\') {
+                    curr_len = 0;
+                    longest = Math.max(longest, 2); //Für den Fall, dass die Maximale Länge 1 ist.
+                } else {
+                    curr_len++;
+                }
+                longest = Math.max(longest, curr_len);
+            } else {
+                curr_len = 0;
+            }
         }
-        return Math.max(res, curr_len);
+        return Math.max(longest, curr_len);
     }
 
 }

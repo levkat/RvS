@@ -86,17 +86,17 @@ public class DataPackage {
                 + message);
     }
     public void printMessage(){
-        System.out.println( "Version:" + version
+        System.out.println( "Version: " + version
                 + System.lineSeparator()
-                + "Absender:" + senderAddress
+                + "Absender: " + senderAddress
                 + System.lineSeparator()
-                + "Empfänger:" + reciverAddress
+                + "Empfänger: " + reciverAddress
                 + System.lineSeparator()
-                + "Paketlaufnummer:" + seqNum
+                + "Paketlaufnummer: " + seqNum
                 + System.lineSeparator()
-                + "Datenteil-Länge:" + message.length()
+                + "Datenteil-Länge: " + message.length()
                 + System.lineSeparator()
-                + "Datenteil:" + message + "\n");
+                + "Datenteil: " + message + "\n");
     }
 
     /**
