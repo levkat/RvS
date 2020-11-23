@@ -11,3 +11,6 @@ TODO:
 - [ ] onboarding for Anatoly
 - [ ] tests?
 - [ ] ip version -> 90. 90 123 throws null instead of correct throw :P
+---------------------------------------------------------------
+- [ ] catch NullPointerException when ipVersion is not int
+---------------------------------------------------------------
