@@ -1,6 +1,5 @@
 package programmieraufgaben;
 
-import java.net.InetAddress;
 
 /**
  * Hier sollen die Nutzereingaben sowie die Resultate gespeichert werden.
@@ -11,7 +10,7 @@ public class DataPackage {
     private int dataPackageLength;
     private int version;
     private String senderAddress;
-    private String reciverAddress;
+    private String receiverAddress;
     private String message;
     private int seqNum;
     /**
@@ -25,7 +24,7 @@ public class DataPackage {
         this.dataPackageLength = dataPackageLength;
         this.version = version;
         this.senderAddress = senderAddress;
-        this.reciverAddress = receiverAddress;
+        this.receiverAddress = receiverAddress;
         this.message = message;
         this.seqNum = seqNum;
     }
@@ -35,8 +34,8 @@ public class DataPackage {
     public void setSenderAddress(String senderAddress){
         this.senderAddress = senderAddress;
     }
-    public void setReciverAddress(String reciverAddress){
-        this.reciverAddress = reciverAddress;
+    public void setReceiverAddress(String receiverAddress){
+        this.receiverAddress = receiverAddress;
     }
     public void setMessage(String message){
         this.message = message;
@@ -52,45 +51,47 @@ public class DataPackage {
         return dataPackageLength;
     }
 
-    public String getReciverAddress() {
-        return reciverAddress;
+    public String getReceiverAddress() {
+        return receiverAddress;
     }
 
     public int getVersion() {
         return version;
     }
 
-    public String getsenderAddress() {
+    public String getSenderAddress() {
         return senderAddress;
     }
 
-    public String getMessage() {
-        return message;
-    }
+    public String getMessage() { return message; }
 
     public int getSeqNum() {
         return seqNum;
     }
 
+
     public void printAll(){
-        System.out.println("Die maximale Datenteil-Länge ist " + dataPackageLength
+        System.out.println("Die maximale Datenteil-Länge ist " + dataPackageLength + "."
                 + System.lineSeparator()
-                + "Version:" + version
                 + System.lineSeparator()
-                + "Absender:" + senderAddress
+                + "Version: " + version
                 + System.lineSeparator()
-                + "Empfänger:" + reciverAddress
+                + "Absender: " + senderAddress
                 + System.lineSeparator()
-                + "Nachricht:"
+                + "Empfänger: " + receiverAddress
                 + System.lineSeparator()
-                + message);
+                + "Nachricht: "
+                + System.lineSeparator()
+                + message.replace("\\n","\n")
+                + System.lineSeparator()
+                + ".");
     }
     public void printMessage(){
         System.out.println( "Version: " + version
                 + System.lineSeparator()
                 + "Absender: " + senderAddress
                 + System.lineSeparator()
-                + "Empfänger: " + reciverAddress
+                + "Empfänger: " + receiverAddress
                 + System.lineSeparator()
                 + "Paketlaufnummer: " + seqNum
                 + System.lineSeparator()
