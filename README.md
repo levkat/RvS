@@ -8,7 +8,7 @@ TODO:
 - [ ] remove all system.prints
 - [ ] RECHTSCHREIBUNG resicvverraasd
 - [ ] add comments
-- [ ] onboarding for Anatoly
+- [x] onboarding for Anatoly
 - [ ] tests?
 - [ ] ip version -> 90. 90 123 throws null instead of correct throw :P
 ---------------------------------------------------------------
