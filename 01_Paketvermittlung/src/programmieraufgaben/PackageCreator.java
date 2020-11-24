@@ -58,7 +58,7 @@ public class PackageCreator {
             return null;
         }
         catch(Exception e) {
-            System.out.println(e);
+            System.out.println(e.getMessage());
             return null;
         }
     }//inetAddress.getHostAddress());
