@@ -5,7 +5,15 @@ import java.util.List;
 
 public class MessageSplitter {
 
-
+    /**
+     * Hier sollen die Kommandozeilen-Abfragen abgefragt und die Antworten
+     * gespeichert werden
+     * Es sollte auf Fehlerbehandlung geachtet werden (falsche Eingaben, ...)
+     *
+     * @param msg aus System.in eingelesene Nachricht
+     * @param limit vom Benutzer eingegebene Datenteil-Länge
+     * @return Gibt das als Parameter übergebene String, als Liste von einzelnen Stücke
+     */
     public static List<String> splitString(String msg, int limit) {
         List<String> splittedString = new ArrayList<>();
         if(LongestWordLength(msg) > limit) {
