@@ -5,12 +5,12 @@ TODO:
   * add special char rejection, see issues page
 - [x] add sequencenumber to output message
 
-- [ ] remove all system.prints
-- [ ] RECHTSCHREIBUNG resicvverraasd
-- [ ] add comments
+- [x] remove all system.prints
+- [x] RECHTSCHREIBUNG resicvverraasd
+- [x] add comments
 - [x] onboarding for Anatoly
-- [ ] tests?
-- [ ] ip version -> 90. 90 123 throws null instead of correct throw :P
+- [x] tests?
+- [x] ip version -> 90. 90 123 throws null instead of correct throw :P
 ---------------------------------------------------------------
-- [ ] catch NullPointerException when ipVersion is not int
+- [x] catch NullPointerException when ipVersion is not int
 ---------------------------------------------------------------
