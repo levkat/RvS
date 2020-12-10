@@ -36,8 +36,8 @@ public class Server{
             writer = new PrintWriter(connectionSocket.getOutputStream(), true);
             input = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream(),"UTF8"));
             String line;
-            while (!listen.isClosed()){ //TODO fix endless loop
-                 line = input.readLine();
+            while (!listen.isClosed() && (line = input.readLine()) != null){ //TODO fix endless loop
+                 //line = input.readLine();
                  writer.println(handleRequest(line));
             }
         }
