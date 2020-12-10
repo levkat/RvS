@@ -1,5 +1,6 @@
 package programmieraufgaben;
 
+import java.nio.channels.ScatteringByteChannel;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -72,7 +73,6 @@ public class ServerServices {
                     break;
                 case "DIV":
                     res = "QUOTIENT ";
-                    res = "DIFFERENCE ";
                     if (!tmp.get(1).isEmpty() && !tmp.get(2).isEmpty()){
                         res += calc(tmp.get(1),tmp.get(2),'/');
                     }
@@ -106,7 +106,7 @@ public class ServerServices {
                     break;
                 case "HISTORY":
                     history.add(request);
-                    res = history.listAll();
+                    res += history.listAll();
                     break;
                 default:
                     res = unknown;
@@ -189,10 +189,18 @@ public class ServerServices {
                 break;
 
             case '/':
-                res += a / b;
+                if(a != 0 && b != 0){
+                    res += a / b;
+                }
+                else {
+                    res = "";
+                    res = "undefined";
+                }
                 break;
-
         }
+
+
+
         return res;
     }
 }

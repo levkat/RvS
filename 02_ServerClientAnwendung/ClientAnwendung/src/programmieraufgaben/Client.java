@@ -74,12 +74,13 @@ public class Client {
     public String request(String userInput) {
         String response = "";
         try{
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(),"UTF8"));
-            while(!clientSocket.isClosed()){
+
+                out = new PrintWriter(clientSocket.getOutputStream(), true);
                 out.println(userInput);
+                out.flush();
                 response = in.readLine();
-            }
+
         }
         catch (SocketException e){
             System.out.println("Die Verbindung wurde vom Server abgebrochen");
