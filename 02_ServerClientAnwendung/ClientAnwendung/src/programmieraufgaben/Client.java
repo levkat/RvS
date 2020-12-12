@@ -104,7 +104,7 @@ public class Client {
      * @return Ausgabe für die Konsole
      */
     public String extract(String reply) {
-        return reply.replace("\\n","\n");
+        return reply.replace("\\n","\n") + System.lineSeparator();
     }
 
     /**
