@@ -61,7 +61,7 @@ public class Client {
     public void disconnect() {
         try{
             clientSocket.close();
-            System.out.println("Die Verbindung zum Server wurde beendet.");
+            System.out.println("Die Verbindung zum Server wurde beendet." + System.lineSeparator());
         }
         catch (Exception e){
             if (isConnected()){
@@ -112,6 +112,6 @@ public class Client {
      * @return Wenn die Verbindung aufgebaut ist: TRUE sonst FALSE
      */
     public boolean isConnected() {
-        return (clientSocket != null && clientSocket.isConnected());
+        return (clientSocket != null && clientSocket.isConnected() && !clientSocket.isClosed());
     }
 }
