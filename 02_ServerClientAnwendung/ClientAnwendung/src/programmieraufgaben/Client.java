@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 /**
@@ -30,16 +32,19 @@ public class Client {
         try {
             System.out.print("IP-Adresse: ");
             target = input.nextLine();
-            if (!target.toLowerCase().matches("127.0.0.1||localhost")){
+            if (!target.toLowerCase().matches("127.0.0.1|localhost")){
                 throw new UnknownHostException("Falsche IP-Adresse! Aktuell ist nur die IPv4-Adresse 127.0.0.1 und die Eingabe localhost möglich.");
             }
             System.out.print("Port: ");
             targetPort = input.nextInt();
             if (!String.valueOf(targetPort).equals("2020")){
-                throw new PortUnreachableException("Kein korrekter Port! Aktuell ist nur Port 2020 möglich.");
+                throw new PortUnreachableException("Kein korrekter Port! Aktuell ist nur Port 2020 möglich." + System.lineSeparator());
             }
             clientSocket = new Socket(target,targetPort);
             System.out.println("Eine TCP-Verbindung zum Server mit IP-Adresse " + target +" (Port: "+ targetPort +") wurde hergestellt. Sie können nun Ihre Anfragen an den Server stellen.");
+        }
+        catch (InputMismatchException e){
+            System.out.println("Kein korrekter Port! Aktuell ist nur Port 2020 möglich." + System.lineSeparator());
         }
         catch (ConnectException e){
             System.out.println("Fehler beim Verbindungsaufbau! Es konnte keine TCP-Verbindung zum Server mit IP-Adresse " + target +" (Port: " + targetPort +") hergestellt werden.");
@@ -56,6 +61,7 @@ public class Client {
     public void disconnect() {
         try{
             clientSocket.close();
+            System.out.println("Die Verbindung zum Server wurde beendet.");
         }
         catch (Exception e){
             if (isConnected()){
@@ -74,16 +80,16 @@ public class Client {
     public String request(String userInput) {
         String response = "";
         try{
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(),"UTF8"));
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
 
                 out = new PrintWriter(clientSocket.getOutputStream(), true);
                 out.println(userInput);
                 out.flush();
                 response = in.readLine();
-
         }
         catch (SocketException e){
             System.out.println("Die Verbindung wurde vom Server abgebrochen");
+            System.exit(0);
         }
         catch (Exception e){
             e.printStackTrace();
@@ -98,7 +104,7 @@ public class Client {
      * @return Ausgabe für die Konsole
      */
     public String extract(String reply) {
-        return reply;
+        return reply.replace("\\n","\n");
     }
 
     /**
