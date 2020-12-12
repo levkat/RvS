@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 
 import static programmieraufgaben.ServerServices.handleRequest;
@@ -31,17 +32,26 @@ public class Server{
      */
     public void execute(){
         try{
-            listen = new ServerSocket(port);
-            connectionSocket = listen.accept();
-            writer = new PrintWriter(connectionSocket.getOutputStream(), true);
-            input = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream(),"UTF8"));
-            String line;
-            while ((line = input.readLine())!= null){
-                 //line = input.readLine();
-                 writer.println(handleRequest(line));
-            }
+            do {
+                listen = new ServerSocket(port);
+                connectionSocket = listen.accept();
+                writer = new PrintWriter(connectionSocket.getOutputStream(), true);
+                input = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream(), StandardCharsets.UTF_8));
+                String line;
+                while ((line = input.readLine()) != null) {
+                    //line = input.readLine();
+                    writer.println(handleRequest(line));
+                }
+            }while (true);
+        }
+        catch (SocketException e){
+                System.out.println(System.lineSeparator() + "Die Verbindung vom Client ist abgebrochen");
+                disconnect();
+                execute();
+
         }
         catch (Exception e){
+            e.printStackTrace();
             if (!listen.isClosed()){
                 e.printStackTrace();
             }
@@ -65,8 +75,6 @@ public class Server{
                 System.out.println("Ein Fehler ist aufgetreten");
                 e.printStackTrace();
             }
-
-
         }
 
     }
@@ -109,7 +117,7 @@ public class Server{
 
     /**
      * Gibt die akzeptierte und gespeicherte Port-Nummer zurück
-     * @return
+     * @return Gibt die akzeptierte und gespeicherte Port-Nummer zurück
      */
     public int getPort() {
         return port;
