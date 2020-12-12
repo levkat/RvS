@@ -7,8 +7,6 @@ import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 
-import static programmieraufgaben.ServerServices.handleRequest;
-
 /**
  * Die Server-Klasse enthält alle Methoden zum Erstellen, Verwenden und Schließen des Servers.
  *
@@ -25,6 +23,7 @@ public class Server{
     private BufferedReader input;
     private boolean run = true;
     private Logger log;
+    private ServerServices handler = new ServerServices();
 
     /**
      * Diese Methode beinhaltet die gesamte Ausführung (Verbindungsaufbau und Beantwortung
@@ -40,13 +39,14 @@ public class Server{
                 String line;
                 while ((line = input.readLine()) != null) {
                     //line = input.readLine();
-                    writer.println(handleRequest(line));
+                    writer.println(handler.handleRequest(line));
                 }
             }while (true);
         }
         catch (SocketException e){
                 System.out.println(System.lineSeparator() + "Die Verbindung vom Client ist abgebrochen");
                 disconnect();
+                handler.resetList();
                 execute();
 
         }

@@ -24,6 +24,7 @@ public class ServerServices {
                 switch (tmp.get(0)) {
                     case "GET":
                         res = get(tmp.get(1));
+                        history.add(request);
                         break;
                     case "ADD":
                         res = "SUM ";
@@ -96,17 +97,13 @@ public class ServerServices {
                     case "HISTORY":
                         if (tmp.size() == 1) {
                             res = listAll(history);
-                            history.add(request);
                         } else if(tmp.size() == 2) {
-                            System.out.println("****");
-                            System.out.println(tmp.get(1));
                             res = listAll(history, Integer.parseInt(tmp.get(1)));
-                            history.add(request);
                         }
                         else {
-                            history.add(request);
                             throw new IllegalArgumentException();
                         }
+                        history.add(request);
                         break;
                     default:
                         history.add(request);
@@ -223,9 +220,12 @@ public class ServerServices {
         }
         try{
             String output = "";
-            for (String s : list){
-                System.out.println(s);
-                output += s + "\\n";
+            for (int i = 0; i < list.size(); i++){
+                System.out.println(list.get(i));
+                output += list.get(i);
+                if( i < list.size()-1){
+                    output+= "\\n";
+                }
             }
             return output;
         }
@@ -240,17 +240,21 @@ public class ServerServices {
                 return "ERROR Keine Historie vorhanden!";
             }
             else if (lastRequests >= list.size()){
-                for (String s : list){
-                    System.out.println(s);
-                    output += s + "\\n";
+                for (int i = 0; i < list.size(); i++){
+                    System.out.println(list.get(i));
+                    if(i < list.size()-1){
+                        output+= "\\n";
+                    }
                 }
             }
             else
             {
-                System.out.println("SUPPOSED TO SHOW UP");
                 for( int i = list.size() - lastRequests; i < list.size() ; i++){
                     System.out.println(list.get(i));
-                    output += list.get(i) + "\\n";
+                    output += list.get(i);
+                    if(i < list.size()-1){
+                        output+= "\\n";
+                    }
                 }
             }
 
@@ -259,6 +263,9 @@ public class ServerServices {
         catch (Exception e){
             return wrong;
         }
+    }
+    public void resetList(){
+        history.clear();
     }
 }
 //(?<=GET|ADD|SUB|MUL|DIV|ECHO|DISCARD|PING|HISTORY)\s+(\S+)\s+(\S+)
