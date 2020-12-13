@@ -10,9 +10,7 @@ import static programmieraufgaben.MessageSplitter.splitString;
 public class PackageCreator {
 
     /**
-     * Hier sollen die Kommandozeilen-Abfragen abgefragt und die Antworten
-     * gespeichert werden
-     * Es sollte auf Fehlerbehandlung geachtet werden (falsche Eingaben, ...)
+     *
      *
      * @param dataPackage Hier wird das Objekt übergeben in das die abgefragten Werte gespeichert werden sollen
      * @return Gibt das als Parameter übergebene Objekt, dass mit den abgefragten Werten befüllt wurde zurück
@@ -22,34 +20,44 @@ public class PackageCreator {
         String receiverAddress;
         Scanner input = new Scanner(System.in);
         try{
-        System.out.print("Version: ");
-        int ipVersion = input.nextInt();
-        checkIPversion(ipVersion);
+            // Eingaben vom User
+            System.out.print("Version: ");
+            int ipVersion = input.nextInt();
+            checkIPversion(ipVersion); // Überprüfung, ob die eingegebene IP-Version 4 oder 6 ist
             dataPackage.setVersion(ipVersion);
+
             System.out.print("Absender: ");
             senderAddress = input.next();
             dataPackage.setSenderAddress(senderAddress);
+
             System.out.print("Empfänger: ");
             receiverAddress = input.next();
             dataPackage.setReceiverAddress(receiverAddress);
+
             System.out.println("Nachricht:");
             StringBuilder stringBuilder = new StringBuilder();
             String check = input.nextLine();
             stringBuilder.append(check);
+
+            // Eine mehrzeilige Eingabe des Users wird ermöglicht. Beendet wird diese durch die Eingabe von \n.\n
             while (true){
                 check = input.nextLine();
                 if(check.equals(".")){
+                    // Entfernen des Erkennungsmerkmals des Endes der Nachricht, da dieses nicht zur Nutzereingabe gehört
                     stringBuilder.deleteCharAt(stringBuilder.length()-1);
                     stringBuilder.deleteCharAt(stringBuilder.length()-1);
                     break;
                 }
                 stringBuilder.append(check);
                     if (input.hasNextLine()) {
+                        // Falls ein Zeilenumbruch in der Eingabe des Nutzers ist, wird diese als \n in dem String gespeichert
                         stringBuilder.append("\\n");
                     }
                 }
+
             dataPackage.setMessage(stringBuilder.toString());
-            dataPackage.printAll();
+            dataPackage.printAll(); // Alle Nutzereingaben werden ausgegeben
+
             return dataPackage;
         }
         catch(InputMismatchException in){
@@ -61,14 +69,14 @@ public class PackageCreator {
             System.out.println(e.getMessage());
             return null;
         }
-    }//inetAddress.getHostAddress());
+    }
 
     /**
      * Aus dem als Parameter übergebenen Paket sollen die Informationen
      * ausgelesen und in einzelne Datenpakete aufgeteilt werden
      *
      * @param dataPackage Hier wird das Objekt übergeben in das das Resultat gespeichert werden soll
-     * @return Gibt das als Parameter übergebene Objekt mit den aufgeteiltet Datenpaketen zurück
+     * @return Gibt das als Parameter übergebene Objekt mit den aufgeteilten Datenpaketen zurück
      */
     public List<DataPackage> splitPackage(DataPackage dataPackage) {
         if (dataPackage == null){
@@ -79,19 +87,25 @@ public class PackageCreator {
         try {
             List<String> splitted = splitString(dataPackage.getMessage(), dataPackage.getDataPackageLength());
             String lastWord = "";
-            for (int i = 0; i < splitted.size(); i++) {
-                if (splitted.get(i).length() + lastWord.length() <= dataPackage.getDataPackageLength()) {
-                    lastWord += splitted.get(i);
+            /*
+             * Die Schleife geht die Liste splitted mit den einzelnen Wörtern der vom Nutzer eingegebenen Nachricht
+             * durch und fügt mehrere Wörter zusammen in ein Paket ein, solange dadurch die maximale Paketlänge nicht
+             * überschritten wird.
+             */
+            for (String s : splitted) {
+                if (s.length() + lastWord.length() <= dataPackage.getDataPackageLength()) {
+                    lastWord += s;
                 } else {
-                    if (lastWord.endsWith(" ")) {
+                    if (lastWord.endsWith(" ")) { // endet ein Paket mit einem Leerzeichen, wird dieses entfernt
                         String tmp = lastWord;
                         tmp = tmp.substring(0, tmp.length() - 1);
                         dataPackages.add(new DataPackage(dataPackage.getDataPackageLength(), dataPackage.getVersion(), dataPackage.getSenderAddress(), dataPackage.getReceiverAddress(), tmp, sequence));
                     } else {
                         dataPackages.add(new DataPackage(dataPackage.getDataPackageLength(), dataPackage.getVersion(), dataPackage.getSenderAddress(), dataPackage.getReceiverAddress(), lastWord, sequence));
                     }
-                    if (!splitted.get(i).equals(" ")) {
-                        lastWord = splitted.get(i);
+                    if (!s.equals(" ")) {
+                        // ist das erste Zeichen für ein neues Paket ein Leerzeichen, wird dieses übersprungen
+                        lastWord = s;
                     } else {
                         lastWord = "";
                     }
@@ -99,6 +113,7 @@ public class PackageCreator {
                 }
             }
             if (!lastWord.isEmpty()) {
+                // Letztes noch nicht in Paketen untergebrachtes Wort wird als einzelnes Paket versandt
                 dataPackages.add(new DataPackage(dataPackage.getDataPackageLength(), dataPackage.getVersion(), dataPackage.getSenderAddress(), dataPackage.getReceiverAddress(), lastWord, sequence));
             }
         }
@@ -110,7 +125,7 @@ public class PackageCreator {
     }
 
     /**
-     * Diese Methode gibt den Inhalt der empfangenen Pakete in der Komandozeile aus
+     * Diese Methode gibt den Inhalt der empfangenen Pakete in der Kommandozeile aus
      *
      * @param dataPackages Hier wird die Liste übergeben, deren Elemente in die Kommandozeile ausgegeben werden sollen
      */
@@ -123,6 +138,12 @@ public class PackageCreator {
             dataPackage.printMessage();
         }
     }
+
+    /**
+     * Die Methode überprüft die Gültigkeit der vom Nutzer eingegebenen IP-Version
+     * @param ipVersion
+     * @return boolean
+     */
     public static boolean checkIPversion(int ipVersion) {
         if(ipVersion == 4 || ipVersion == 6){
             return true;
