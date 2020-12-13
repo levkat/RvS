@@ -4,25 +4,25 @@
 
 ### 1. Dienste
 
-- [ ] Zeit und Datum
-    - [ ] Get Time (TIME HH:mm:ss)
-    - [ ] Get Date (DATE dd.MM.yyyy)
-- [ ] Rechner
-    - [ ] ADD int1 int2 (SUM Ergebnis)
-    - [ ] SUB int1 int2 (DIFFERENCE Ergebnis)
-    - [ ] MUL int1 int2 (PRODUCT Ergebnis)
-    - [ ] DIV int1 int2 (QUOTIENT Ergebnis)
-- [ ] Echo/Didcard
-    - [ ] ECHO String (ECHO String)
-    - [ ] DISCARD String ()
-- [ ] PING (PONG)
+- [x] Zeit und Datum
+  - [x] Get Time (TIME HH:mm:ss)
+  - [x] Get Date (DATE dd.MM.yyyy)
+- [x] Rechner
+  - [x] ADD int1 int2 (SUM Ergebnis)
+  - [x] SUB int1 int2 (DIFFERENCE Ergebnis)
+  - [x] MUL int1 int2 (PRODUCT Ergebnis)
+  - [x] DIV int1 int2 (QUOTIENT Ergebnis)
+- [x] Echo/Didcard
+  - [x] ECHO String (ECHO String)
+  - [x] DISCARD String ()
+- [x] PING (PONG)
 
 ### 2. Historie
 
-- [ ] HISTORY (alle Anfragen)
+- [x] HISTORY (alle Anfragen)
 - [ ] HISTORY (int)n (letzte n Anfragen)
-- [ ] ERROR Keine Historie vorhanden! (falls keine)
-- [ ] DISCARD (soll nicht in History auftauchen)
+- [x] ERROR Keine Historie vorhanden! (falls keine)
+- [x] DISCARD (soll nicht in History auftauchen)
 
 ### 3. Fehlerhafte Anfrage vom Client
 
@@ -30,15 +30,17 @@
 
 ### 4. Server
 
-- [ ] den Port vom Nutzer entgegennehmen
-- [ ] Port korrekt (korrekter Datentyp und Port 2020)
-- [ ] ssocket.clos()
-
+- [x] den Port vom Nutzer entgegennehmen
+- [x] Port korrekt (korrekter Datentyp und Port 2020)
+- [x] ssocket.clos()
+- [ ] FIX: server beenden (client alive)
+- [ ] FIX: server beenden (client down)
 ### 5. Client
 
-- [ ] IP entgegennehmen
-- [ ] IP-check (soll: 127.0.0.1|localhost )
-- [ ] Port entgegennehmen
-- [ ] Port-check (soll: 2020)
-- [ ] promt '$'
-- [ ] socket.close()
+- [x] IP entgegennehmen
+- [x] IP-check (soll: 127.0.0.1|localhost )
+- [x] Port entgegennehmen
+- [x] Port-check (soll: 2020)
+- [x] promt '$'
+- [x] socket.close()
+- [ ] FIX: handle server down before client
