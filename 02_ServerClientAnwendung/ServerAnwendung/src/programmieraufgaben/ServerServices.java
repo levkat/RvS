@@ -13,6 +13,7 @@ public class ServerServices {
     private static String unknown = "ERROR Unbekannte Anfrage!";
     private static String wrong = "ERROR Falsches Format!";
     private static List<String> history = new LinkedList<>();
+
     public static String handleRequest(String request){
         String res = "";
         ArrayList<String> tmp = findCMD(request);
