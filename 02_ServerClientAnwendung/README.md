@@ -2,6 +2,10 @@
 
 ## Aufgabestellung Checkliste
 
+## TO FIX:
+- [ ] FIX: server beenden (client alive)
+- [ ] FIX: server beenden (client down)
+
 ### 1. Dienste
 
 - [x] Zeit und Datum
@@ -20,7 +24,7 @@
 ### 2. Historie
 
 - [x] HISTORY (alle Anfragen)
-- [ ] HISTORY (int)n (letzte n Anfragen)
+- [x] HISTORY (int)n (letzte n Anfragen)
 - [x] ERROR Keine Historie vorhanden! (falls keine)
 - [x] DISCARD (soll nicht in History auftauchen)
 
@@ -32,9 +36,8 @@
 
 - [x] den Port vom Nutzer entgegennehmen
 - [x] Port korrekt (korrekter Datentyp und Port 2020)
-- [x] ssocket.clos()
-- [ ] FIX: server beenden (client alive)
-- [ ] FIX: server beenden (client down)
+- [x] ssocket.close()
+
 ### 5. Client
 
 - [x] IP entgegennehmen
@@ -43,4 +46,4 @@
 - [x] Port-check (soll: 2020)
 - [x] promt '$'
 - [x] socket.close()
-- [ ] FIX: handle server down before client
+- [x] FIX: handle server down before client
