@@ -1,6 +1,5 @@
 package programmieraufgaben;
 
-import java.nio.channels.ScatteringByteChannel;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -10,8 +9,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ServerServices {
-    private static String unknown = "ERROR Unbekannte Anfrage!";
-    private static String wrong = "ERROR Falsches Format!";
+    private static final String UNKNOWN = "ERROR Unbekannte Anfrage!";
+    private static final String WRONG = "ERROR Falsches Format!";
     private static List<String> history = new LinkedList<>();
 
     public static String handleRequest(String request){
@@ -19,21 +18,20 @@ public class ServerServices {
         ArrayList<String> tmp = findCMD(request);
         if(!tmp.get(0).isEmpty()) {
             try {
+                history.add((history.size()+1) + " " + request); // alle requests werden registriert und durchnummeriert
                 switch (tmp.get(0)) {
                     case "GET":
                         res = get(tmp.get(1));
-                        history.add(request);
                         break;
                     case "ADD":
                         res = "SUM ";
                         if (tmp.size() <= 2) {
-                            res = wrong;
+                            res = WRONG;
                         } else if (!tmp.get(1).isEmpty() && !tmp.get(2).isEmpty()) {
                             res += calc(tmp.get(1), tmp.get(2), '+');
                         } else {
-                            res = wrong;
+                            res = WRONG;
                         }
-                        history.add(request);
                         break;
                     case "SUB":
                         res = "DIFFERENCE ";
@@ -44,9 +42,8 @@ public class ServerServices {
                         } else if (tmp.get(1).isEmpty() && !tmp.get(2).isEmpty()) {
                             res += calc(tmp.get(2));
                         } else {
-                            res = wrong;
+                            res = WRONG;
                         }
-                        history.add(request);
                         break;
                     case "MUL":
                         res = "PRODUCT ";
@@ -57,9 +54,8 @@ public class ServerServices {
                         } else if (tmp.get(1).isEmpty() && !tmp.get(2).isEmpty()) {
                             res += calc(tmp.get(2));
                         } else {
-                            res = wrong;
+                            res = WRONG;
                         }
-                        history.add(request);
                         break;
                     case "DIV":
                         res = "QUOTIENT ";
@@ -70,47 +66,44 @@ public class ServerServices {
                         } else if (tmp.get(1).isEmpty() && !tmp.get(2).isEmpty()) {
                             res += calc(tmp.get(2));
                         } else {
-                            res = wrong;
+                            res = WRONG;
                         }
-                        history.add(request);
                         break;
                     case "ECHO":
-                        String build = "ECHO ";
+                        StringBuilder build = new StringBuilder("ECHO ");
                         if (!tmp.get(1).isEmpty()) {
                             for (int i = 1; i < tmp.size(); i++) {
-                                build += tmp.get(i);
+                                build.append(tmp.get(i));
                             }
                         }
-                        res = build;
-                        history.add(request);
+                        res = build.toString();
                         break;
                     case "DISCARD":
                         res = "";
+                        history.remove(history.size()-1); // Nimmt DISCARD  raus
                         break;
                     case "PING":
-                        res = "PONG!";
-                        history.add(request);
+                        res = "PONG";
                         break;
                     case "HISTORY":
+                        res = "HISTORY "; //  Einheitliche Serverantwort für Client.extract()
                         if (tmp.size() == 1) {
-                            res = listAll(history);
+                            res+= listAll(history);
                         } else if(tmp.size() == 2) {
-                            res = listAll(history, Integer.parseInt(tmp.get(1)));
+                            res+= listAll(history, Integer.parseInt(tmp.get(1)));
                         }
                         else {
                             throw new IllegalArgumentException();
                         }
-                        history.add(request);
                         break;
                     default:
-                        history.add(request);
-                        res = unknown;
+                        res = UNKNOWN;
                         break;
                 }
 
            }
             catch(Exception e){
-                res = wrong;
+                res = WRONG;
             }
 
         }
@@ -118,12 +111,9 @@ public class ServerServices {
     }
 
     private static ArrayList <String> findCMD(String request){
-        String tmp = "";
-        String cmd = "";
         ArrayList<String> arr = new ArrayList<>();
         Pattern pat = Pattern.compile("\\S+");
         Matcher m = pat.matcher(request);
-        boolean bool = false;
         if (request.matches("(GET|ADD|SUB|MUL|DIV|ECHO|DISCARD|PING|HISTORY).*")){
             while(m.find()){
                 arr.add(m.group());
@@ -144,7 +134,7 @@ public class ServerServices {
                 res = "DATE " + new SimpleDateFormat("dd/MM/yyyy").format(new Date());
                 break;
             default:
-                res = wrong;
+                res = WRONG;
         }
         return res;
     }
@@ -156,7 +146,7 @@ public class ServerServices {
         }
         catch(NumberFormatException e)
         {
-            return wrong;
+            return WRONG;
         }
         return res;
     }
@@ -169,7 +159,7 @@ public class ServerServices {
         }
         catch(NumberFormatException e)
         {
-            return wrong;
+            return WRONG;
         }
         int a = Integer.parseInt(first);
         int b = Integer.parseInt(second);
@@ -197,7 +187,6 @@ public class ServerServices {
                         }
 
                     } else {
-                        res = "";
                         res = "undefined";
                     }
                     break;
@@ -207,26 +196,37 @@ public class ServerServices {
             return res;
         }
         catch (Exception e){
-            return wrong;
+            return WRONG;
         }
     }
     //TODO JAVA Docs @Lea
+
+    /**
+     * History full
+     * @param list
+     * @return bash-ähnliche Darstellung, aufsteigend durchnummeriert von alt nach neu
+     */
     private static String listAll(List <String> list){
-        if( list.isEmpty()){
+        if( list.size() == 1 && list.contains("1 HISTORY")){
             return "ERROR Keine Historie vorhanden!";
         }
         try{
-            String output = "";
-            for (int i = list.size()-1; i >= 0; i--){
-                output += list.get(i);
-                if( i > 0){
-                    output+= "\\n";
-                }
+            StringBuilder output = new StringBuilder();
+            for (String s : list) {
+                output.append(s);
+                output.append("\\n");
             }
-            return output;
+            /*  descending order
+                for (int i = list.size()-1; i >= 0; i--){
+                output.append(list.get(i));
+                if( i > 0){
+                    output.append("\\n");
+                }
+            }*/
+            return output.toString();
         }
         catch (Exception e){
-            return wrong;
+            return WRONG;
         }
     }
     private static String listAll(List <String> list, int lastRequests){
@@ -234,32 +234,25 @@ public class ServerServices {
             if(lastRequests < 0){
                 throw new IllegalArgumentException();
             }
-            String output = "";
-            if( list.isEmpty()){
+            StringBuilder output = new StringBuilder();
+            if( list.size() == 1 && list.contains("1 HISTORY")){
                 return "ERROR Keine Historie vorhanden!";
             }
             else if (lastRequests >= list.size()){
-                for (int i = list.size()-1; i >= 0; i--){
-                    output += list.get(i);
-                    if(i > 0){
-                        output+= "\\n";
-                    }
-                }
+                listAll(list);
             }
             else
             {
                 for( int i = list.size() - lastRequests; i < list.size() ; i++){
-                    output += list.get(i);
-                    if(i < list.size()-1){
-                        output+= "\\n";
-                    }
+                    output.append(list.get(i));
+                    output.append("\\n");
                 }
             }
 
-            return output;
+            return output.toString();
         }
         catch (Exception e){
-            return wrong;
+            return WRONG;
         }
     }
     public void resetList(){
