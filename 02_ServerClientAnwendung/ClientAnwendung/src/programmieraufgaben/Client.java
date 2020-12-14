@@ -78,24 +78,26 @@ public class Client {
      * @return Die vom Server empfangene Nachricht
      */
     public String request(String userInput) {
-        String response = "";
-        try{
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
+        if (isConnected()) {
+            String response = "";
+            try {
+                in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
 
                 out = new PrintWriter(clientSocket.getOutputStream(), true);
                 out.println(userInput);
                 out.flush();
                 response = in.readLine();
-        }
-        catch (SocketException e){
-            System.out.println("Die Verbindung wurde vom Server abgebrochen");
-            System.exit(0);
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
+            } catch (SocketException e) {
+                System.out.println("Die Verbindung wurde vom Server abgebrochen");
+                System.exit(0);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
-        return response;
+            return response;
+        } else {
+            throw new SecurityException("Connection lost");
+        }
     }
 
     /**
