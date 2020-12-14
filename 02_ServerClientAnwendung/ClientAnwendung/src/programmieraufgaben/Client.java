@@ -17,7 +17,7 @@ import java.util.Scanner;
  * die von den oben genannten Methoden aufgerufen werden.
  */
 public class Client {
-    //Diese Variable gibt den Socket an an dem die Verbindung aufgabaut werden soll
+    //Diese Variable gibt den Socket an an dem die Verbindung aufgebaut werden soll
     private Socket clientSocket;
     private PrintWriter out;
     private int targetPort;
@@ -101,12 +101,19 @@ public class Client {
     }
 
     /**
-     * Die vom Server empfangene Nachricht soll hier für die Konsolenausgabe aufbereitet werden.
+     * Die vom Server empfangene Nachricht soll hier für die Konsole-ausgaben aufbereitet werden.
      * @param reply Die vom Server empfangene Nachricht
      * @return Ausgabe für die Konsole
      */
     public String extract(String reply) {
-        return reply.replace("\\n","\n") + System.lineSeparator();
+        if (reply.startsWith("PONG")) {
+            return reply + System.lineSeparator();
+        }
+        if (!reply.isEmpty() && reply.contains(" ")) {
+            return reply.substring(reply.indexOf(" ")).trim().replace("\\n", "\n") + System.lineSeparator();
+        } else {
+            return reply + System.lineSeparator();
+        }
         //TODO remove commands @Tolya
     }
 

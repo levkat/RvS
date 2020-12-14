@@ -18,7 +18,9 @@ public class ServerServices {
         ArrayList<String> tmp = findCMD(request);
         if(!tmp.get(0).isEmpty()) {
             try {
-                history.add((history.size()+1) + " " + request); // alle requests werden registriert und durchnummeriert
+                if (!request.equals("HISTORY") && !request.equals("DISCARD")) {
+                    history.add((history.size() + 1) + " " + request); // alle requests werden registriert und durchnummeriert
+                }
                 switch (tmp.get(0)) {
                     case "GET":
                         res = get(tmp.get(1));
@@ -80,7 +82,6 @@ public class ServerServices {
                         break;
                     case "DISCARD":
                         res = "";
-                        history.remove(history.size()-1); // Nimmt DISCARD  raus
                         break;
                     case "PING":
                         res = "PONG";
@@ -90,11 +91,13 @@ public class ServerServices {
                         if (tmp.size() == 1) {
                             res+= listAll(history);
                         } else if(tmp.size() == 2) {
+                            history.remove(history.size()-1); // weil ich blöd bin, temporäre Lösung
                             res+= listAll(history, Integer.parseInt(tmp.get(1)));
                         }
                         else {
                             throw new IllegalArgumentException();
                         }
+                        history.add((history.size() + 1) + " " + request);
                         break;
                     default:
                         res = UNKNOWN;
@@ -203,11 +206,11 @@ public class ServerServices {
 
     /**
      * History full
-     * @param list
+     * @param list alle bisher angekommene requests außer HISTORY selbst
      * @return bash-ähnliche Darstellung, aufsteigend durchnummeriert von alt nach neu
      */
     private static String listAll(List <String> list){
-        if( list.size() == 1 && list.contains("1 HISTORY")){
+        if( list.isEmpty()) {
             return "ERROR Keine Historie vorhanden!";
         }
         try{
@@ -223,7 +226,7 @@ public class ServerServices {
                     output.append("\\n");
                 }
             }*/
-            return output.toString();
+            return output.substring(0,output.length()-2); // entfernt letzte \\n
         }
         catch (Exception e){
             return WRONG;
@@ -235,11 +238,11 @@ public class ServerServices {
                 throw new IllegalArgumentException();
             }
             StringBuilder output = new StringBuilder();
-            if( list.size() == 1 && list.contains("1 HISTORY")){
+            if( list.isEmpty()) {
                 return "ERROR Keine Historie vorhanden!";
             }
             else if (lastRequests >= list.size()){
-                listAll(list);
+                return listAll(list);
             }
             else
             {
@@ -249,7 +252,7 @@ public class ServerServices {
                 }
             }
 
-            return output.toString();
+            return output.substring(0,output.length()-2); // entfernt letzte \\n
         }
         catch (Exception e){
             return WRONG;
