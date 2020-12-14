@@ -107,6 +107,7 @@ public class Client {
      */
     public String extract(String reply) {
         return reply.replace("\\n","\n") + System.lineSeparator();
+        //TODO remove commands @Tolya
     }
 
     /**

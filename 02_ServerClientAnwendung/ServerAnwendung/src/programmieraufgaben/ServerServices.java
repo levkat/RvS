@@ -13,13 +13,11 @@ public class ServerServices {
     private static String unknown = "ERROR Unbekannte Anfrage!";
     private static String wrong = "ERROR Falsches Format!";
     private static List<String> history = new LinkedList<>();
+
     public static String handleRequest(String request){
         String res = "";
         ArrayList<String> tmp = findCMD(request);
         if(!tmp.get(0).isEmpty()) {
-            System.out.println("----------------");
-            System.out.println(tmp.get(0));
-            System.out.println("----------------");
             try {
                 switch (tmp.get(0)) {
                     case "GET":
@@ -28,7 +26,6 @@ public class ServerServices {
                         break;
                     case "ADD":
                         res = "SUM ";
-                        System.out.println(tmp.size());
                         if (tmp.size() <= 2) {
                             res = wrong;
                         } else if (!tmp.get(1).isEmpty() && !tmp.get(2).isEmpty()) {
@@ -135,17 +132,16 @@ public class ServerServices {
         else {
             arr.add("Unbekannte Anfrage!");
         }
-        System.out.println(cmd);
         return arr;
     }
     private static String get(String datetime){
         String res;
         switch(datetime.toLowerCase()){
             case "time":
-                res = new SimpleDateFormat("HH:mm:ss").format(new Date());
+                res = "TIME " + new SimpleDateFormat("HH:mm:ss").format(new Date());
                 break;
             case "date":
-                res = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+                res = "DATE " + new SimpleDateFormat("dd/MM/yyyy").format(new Date());
                 break;
             default:
                 res = wrong;
@@ -214,16 +210,16 @@ public class ServerServices {
             return wrong;
         }
     }
+    //TODO JAVA Docs @Lea
     private static String listAll(List <String> list){
         if( list.isEmpty()){
             return "ERROR Keine Historie vorhanden!";
         }
         try{
             String output = "";
-            for (int i = 0; i < list.size(); i++){
-                System.out.println(list.get(i));
+            for (int i = list.size()-1; i >= 0; i--){
                 output += list.get(i);
-                if( i < list.size()-1){
+                if( i > 0){
                     output+= "\\n";
                 }
             }
@@ -235,14 +231,17 @@ public class ServerServices {
     }
     private static String listAll(List <String> list, int lastRequests){
         try{
+            if(lastRequests < 0){
+                throw new IllegalArgumentException();
+            }
             String output = "";
             if( list.isEmpty()){
                 return "ERROR Keine Historie vorhanden!";
             }
             else if (lastRequests >= list.size()){
-                for (int i = 0; i < list.size(); i++){
-                    System.out.println(list.get(i));
-                    if(i < list.size()-1){
+                for (int i = list.size()-1; i >= 0; i--){
+                    output += list.get(i);
+                    if(i > 0){
                         output+= "\\n";
                     }
                 }
@@ -250,7 +249,6 @@ public class ServerServices {
             else
             {
                 for( int i = list.size() - lastRequests; i < list.size() ; i++){
-                    System.out.println(list.get(i));
                     output += list.get(i);
                     if(i < list.size()-1){
                         output+= "\\n";
@@ -268,4 +266,3 @@ public class ServerServices {
         history.clear();
     }
 }
-//(?<=GET|ADD|SUB|MUL|DIV|ECHO|DISCARD|PING|HISTORY)\s+(\S+)\s+(\S+)

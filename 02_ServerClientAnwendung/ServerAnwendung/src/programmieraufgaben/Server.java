@@ -5,6 +5,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
+import java.util.InputMismatchException;
+import java.util.Scanner;
 import java.util.logging.Logger;
 
 /**
@@ -31,7 +33,7 @@ public class Server{
      */
     public void execute(){
         try{
-            do {
+           // do {
                 listen = new ServerSocket(port);
                 connectionSocket = listen.accept();
                 writer = new PrintWriter(connectionSocket.getOutputStream(), true);
@@ -41,14 +43,16 @@ public class Server{
                     //line = input.readLine();
                     writer.println(handler.handleRequest(line));
                 }
-            }while (true);
+            //}while (true);
+        }
+        catch (InputMismatchException e){
+            disconnect();
         }
         catch (SocketException e){
                 System.out.println(System.lineSeparator() + "Die Verbindung vom Client ist abgebrochen");
                 disconnect();
                 handler.resetList();
                 execute();
-
         }
         catch (Exception e){
             e.printStackTrace();
@@ -68,6 +72,7 @@ public class Server{
             input.close();
             writer.close();
             connectionSocket.close();
+            System.exit(0);
         }
         catch (Exception e){
 
