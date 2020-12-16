@@ -5,8 +5,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
-import java.util.InputMismatchException;
-import java.util.Scanner;
 import java.util.logging.Logger;
 
 /**
@@ -19,10 +17,7 @@ import java.util.logging.Logger;
  */
 public class Server{
     private int port;
-    private Socket connectionSocket;
     private ServerSocket listen;
-    private PrintWriter writer;
-    private BufferedReader input;
     private boolean run = true;
     private Logger log;
     private ServerServices handler = new ServerServices();
@@ -36,9 +31,9 @@ public class Server{
             listen = new ServerSocket(port);
             do {
                 try {
-                    connectionSocket = listen.accept();
-                    writer = new PrintWriter(connectionSocket.getOutputStream(), true);
-                    input = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream(), StandardCharsets.UTF_8));
+                    Socket connectionSocket = listen.accept();
+                    PrintWriter writer = new PrintWriter(connectionSocket.getOutputStream(), true);
+                    BufferedReader input = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream(), StandardCharsets.UTF_8));
                     String line;
                     while ((line = input.readLine()) != null) {
                         //line = input.readLine();
@@ -47,13 +42,18 @@ public class Server{
                     connectionSocket.close();
                 }
                 catch (SocketException e){
-                    System.out.println(e.getMessage());
+                    System.out.println(System.lineSeparator() + "Die Verbindung wurde abgebrochen");
+                }
+                catch (Exception e){
+                    System.out.println(System.lineSeparator() + "Oops, uns ist folgende Fehler unterlaufen:" + System.lineSeparator() + e.getMessage());
+                }
+                finally {
+                    handler.resetList();
                 }
             }while (true);
         }
         catch (SocketException e){
                 System.out.println(System.lineSeparator() + "Die Verbindung vom Client ist abgebrochen");
-                handler.resetList();
                 execute();
         }
         catch (Exception e){
@@ -61,6 +61,9 @@ public class Server{
             if (!listen.isClosed()){
                 e.printStackTrace();
             }
+        }
+        finally {
+            handler.resetList();
         }
 
     }
