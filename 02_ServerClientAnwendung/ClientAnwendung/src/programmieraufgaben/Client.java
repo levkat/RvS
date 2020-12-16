@@ -17,7 +17,7 @@ import java.util.Scanner;
  * die von den oben genannten Methoden aufgerufen werden.
  */
 public class Client {
-    //Diese Variable gibt den Socket an an dem die Verbindung aufgabaut werden soll
+    //Diese Variable gibt den Socket an an dem die Verbindung aufgebaut werden soll
     private Socket clientSocket;
     private PrintWriter out;
     private int targetPort;
@@ -78,33 +78,42 @@ public class Client {
      * @return Die vom Server empfangene Nachricht
      */
     public String request(String userInput) {
-        String response = "";
-        try{
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
+        if (isConnected()) {
+            String response = "";
+            try {
+                in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
 
                 out = new PrintWriter(clientSocket.getOutputStream(), true);
                 out.println(userInput);
                 out.flush();
                 response = in.readLine();
-        }
-        catch (SocketException e){
-            System.out.println("Die Verbindung wurde vom Server abgebrochen");
-            System.exit(0);
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
+            } catch (SocketException e) {
+                System.out.println("Die Verbindung wurde vom Server abgebrochen");
+                System.exit(0);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
-        return response;
+            return response;
+        } else {
+            throw new SecurityException("Connection lost");
+        }
     }
 
     /**
-     * Die vom Server empfangene Nachricht soll hier für die Konsolenausgabe aufbereitet werden.
+     * Die vom Server empfangene Nachricht soll hier für die Konsole-ausgaben aufbereitet werden.
      * @param reply Die vom Server empfangene Nachricht
      * @return Ausgabe für die Konsole
      */
     public String extract(String reply) {
-        return reply.replace("\\n","\n") + System.lineSeparator();
+        if (reply.startsWith("PONG")) {
+            return reply + System.lineSeparator();
+        }
+        if (!reply.isEmpty() && reply.contains(" ")) {
+            return reply.substring(reply.indexOf(" ")).trim().replace("\\n", "\n") + System.lineSeparator();
+        } else {
+            return reply + System.lineSeparator();
+        }
         //TODO remove commands @Tolya
     }
 
