@@ -33,24 +33,26 @@ public class Server{
      */
     public void execute(){
         try{
-           // do {
-                listen = new ServerSocket(port);
-                connectionSocket = listen.accept();
-                writer = new PrintWriter(connectionSocket.getOutputStream(), true);
-                input = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream(), StandardCharsets.UTF_8));
-                String line;
-                while ((line = input.readLine()) != null) {
-                    //line = input.readLine();
-                    writer.println(handler.handleRequest(line));
+            listen = new ServerSocket(port);
+            do {
+                try {
+                    connectionSocket = listen.accept();
+                    writer = new PrintWriter(connectionSocket.getOutputStream(), true);
+                    input = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream(), StandardCharsets.UTF_8));
+                    String line;
+                    while ((line = input.readLine()) != null) {
+                        //line = input.readLine();
+                        writer.println(handler.handleRequest(line));
+                    }
+                    connectionSocket.close();
                 }
-            //}while (true);
-        }
-        catch (InputMismatchException e){
-            disconnect();
+                catch (SocketException e){
+                    System.out.println(e.getMessage());
+                }
+            }while (true);
         }
         catch (SocketException e){
                 System.out.println(System.lineSeparator() + "Die Verbindung vom Client ist abgebrochen");
-                disconnect();
                 handler.resetList();
                 execute();
         }
@@ -69,9 +71,6 @@ public class Server{
     public void disconnect() {
         try {
             listen.close();
-            input.close();
-            writer.close();
-            connectionSocket.close();
             System.exit(0);
         }
         catch (Exception e){
