@@ -8,6 +8,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// TODO: ? 17.12.20 extract logic from handleRequest() to methods so it only switches
+// FIXME: 17.12.20 (GET Time Date| ADD 1 2 3) funktioniert soll aber nicht
+// FIXME: 17.12.20 (ADD__1_2| ADD_1__2| ADD_1_2_______) funktioniert, soll nicht
+// TODO: ? 17.12.20 History als Klasse? -> "private History<String> history" in Server?
+
 public class ServerServices {
     private static final String UNKNOWN = "ERROR Unbekannte Anfrage!";
     private static final String WRONG = "ERROR Falsches Format!";

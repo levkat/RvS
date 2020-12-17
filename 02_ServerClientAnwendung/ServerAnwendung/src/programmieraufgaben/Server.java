@@ -15,6 +15,9 @@ import java.util.logging.Logger;
  * Es dürfen beliebig viele Methoden und Klassen erzeugt werden, solange
  * die von den oben genannten Methoden aufgerufen werden.
  */
+// FIXME: 16.12.20 disconnect() !=null before close, exceptions
+// FIXME: 16.12.20 execute() richtige Exceptions werfen, finaly close !=null
+// TODO: 17.12.20 rework checkport() check isAvailable with BindException in execute
 public class Server{
     private int port;
     private ServerSocket listen;

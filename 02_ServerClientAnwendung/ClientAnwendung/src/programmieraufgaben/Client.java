@@ -16,6 +16,9 @@ import java.util.Scanner;
  * Es dürfen beliebig viele Methoden und Klassen erzeugt werden, solange
  * die von den oben genannten Methoden aufgerufen werden.
  */
+// FIXME: 16.12.20 connect() richtige Exceptions werfen, nextInt?
+// FIXME: 16.12.20 request() flush isConnected exceptions
+// FIXME: 16.12.20 disconnect() !=null before close, exceptions
 public class Client {
     //Diese Variable gibt den Socket an an dem die Verbindung aufgebaut werden soll
     private Socket clientSocket;
@@ -109,12 +112,12 @@ public class Client {
         if (reply.startsWith("PONG")) {
             return reply + System.lineSeparator();
         }
+        // FIXME: 16.12.20 '&& reply.contains(" ")' unnötig? remove replace \\n
         if (!reply.isEmpty() && reply.contains(" ")) {
             return reply.substring(reply.indexOf(" ")).trim().replace("\\n", "\n") + System.lineSeparator();
         } else {
             return reply + System.lineSeparator();
         }
-        //TODO remove commands @Tolya
     }
 
     /**
