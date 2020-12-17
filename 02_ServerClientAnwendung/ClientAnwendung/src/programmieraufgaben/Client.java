@@ -1,6 +1,7 @@
 package programmieraufgaben;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.*;
@@ -18,7 +19,6 @@ import java.util.Scanner;
  */
 // FIXME: 16.12.20 connect() richtige Exceptions werfen, nextInt?
 // FIXME: 16.12.20 request() flush isConnected exceptions
-// FIXME: 16.12.20 disconnect() !=null before close, exceptions
 public class Client {
     //Diese Variable gibt den Socket an an dem die Verbindung aufgebaut werden soll
     private Socket clientSocket;
@@ -63,10 +63,14 @@ public class Client {
      */
     public void disconnect() {
         try{
-            clientSocket.close();
-            System.out.println("Die Verbindung zum Server wurde beendet." + System.lineSeparator());
+            if (clientSocket != null) {
+                clientSocket.close();
+                System.out.println("Die Verbindung zum Server wurde beendet." + System.lineSeparator());
+            } else {
+                System.out.println("Es besteht keine Verbindung zu beenden");
+            }
         }
-        catch (Exception e){
+        catch (IOException e){
             if (isConnected()){
                 System.out.println("Ein Fehler ist aufgetreten");
                 e.printStackTrace();
@@ -81,26 +85,24 @@ public class Client {
      * @return Die vom Server empfangene Nachricht
      */
     public String request(String userInput) {
-        if (isConnected()) {
-            String response = "";
-            try {
-                in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
+       if (isConnected()) {
+           String response = "";
+           try {
+               in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
 
-                out = new PrintWriter(clientSocket.getOutputStream(), true);
-                out.println(userInput);
-                out.flush();
-                response = in.readLine();
-            } catch (SocketException e) {
-                System.out.println("Die Verbindung wurde vom Server abgebrochen");
-                System.exit(0);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            return response;
-        } else {
-            throw new SecurityException("Connection lost");
-        }
+               out = new PrintWriter(clientSocket.getOutputStream(), true);
+               out.println(userInput);
+               response = in.readLine();
+           } catch (SocketException e) {
+               System.out.println("Die Verbindung wurde vom Server abgebrochen");
+               System.exit(0);
+           } catch (Exception e) {
+               e.printStackTrace();
+           }
+           return response;
+       } else {
+           throw new ConnectException("Verbndung lost");
+       }
     }
 
     /**
