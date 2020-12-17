@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.*;
+import java.net.ConnectException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -17,9 +19,8 @@ import java.util.Scanner;
  * Es dürfen beliebig viele Methoden und Klassen erzeugt werden, solange
  * die von den oben genannten Methoden aufgerufen werden.
  */
-// FIXME: 16.12.20 connect() richtige Exceptions werfen, nextInt?
-// FIXME: 16.12.20 request() flush isConnected exceptions
 public class Client {
+    private final static String WRONG_PORT = "Kein korrekter Port! Aktuell ist nur Port 2020 möglich.";
     //Diese Variable gibt den Socket an an dem die Verbindung aufgebaut werden soll
     private Socket clientSocket;
     private PrintWriter out;
@@ -35,8 +36,8 @@ public class Client {
         try {
             System.out.print("IP-Adresse: ");
             target = input.nextLine();
-            if (!target.toLowerCase().matches("127.0.0.1|localhost")){
-                throw new UnknownHostException("Falsche IP-Adresse! Aktuell ist nur die IPv4-Adresse 127.0.0.1 und die Eingabe localhost möglich.");
+            if (!target.matches("127.0.0.1|localhost")) {
+                throw new UnknownHostException();
             }
             System.out.print("Port: ");
             targetPort = input.nextInt();
@@ -67,16 +68,14 @@ public class Client {
                 clientSocket.close();
                 System.out.println("Die Verbindung zum Server wurde beendet." + System.lineSeparator());
             } else {
-                System.out.println("Es besteht keine Verbindung zu beenden");
+                System.out.println("Verbindung bereits beendet.");
             }
         }
         catch (IOException e){
             if (isConnected()){
                 System.out.println("Ein Fehler ist aufgetreten");
                 e.printStackTrace();
-            }
         }
-
     }
 
     /**
@@ -111,12 +110,13 @@ public class Client {
      * @return Ausgabe für die Konsole
      */
     public String extract(String reply) {
-        if (reply.startsWith("PONG")) {
-            return reply + System.lineSeparator();
-        }
-        // FIXME: 16.12.20 '&& reply.contains(" ")' unnötig? remove replace \\n
-        if (!reply.isEmpty() && reply.contains(" ")) {
-            return reply.substring(reply.indexOf(" ")).trim().replace("\\n", "\n") + System.lineSeparator();
+        if (!reply.startsWith("PONG")) {
+            if (!reply.isEmpty()) {
+                return reply.substring(reply.indexOf(" ")).trim().replace("\\n", "\n")
+                        + System.lineSeparator();
+            } else {
+                return reply + System.lineSeparator();
+            }
         } else {
             return reply + System.lineSeparator();
         }
