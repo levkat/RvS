@@ -95,7 +95,7 @@ public class Client {
             return in.readLine();
         } catch (ConnectException e) {
             System.out.println("Die Verbindung wurde vom Server abgebrochen");
-            forceQuit();
+            disconnect();
         }catch (IOException e) {
             System.out.println("Fehler in I/O Streams");
         } catch (Exception e) {
@@ -103,27 +103,6 @@ public class Client {
             e.printStackTrace();
         }
         return "";
-    }
-
-    /**
-     *  Aufräumen wenn die Verbindung unerwartet abgebrochen wird
-     */
-    private void forceQuit() {
-        int status = 0;
-        try {
-            if (clientSocket != null) {
-                clientSocket.close();
-                System.out.println("Der Client wurde beendet.");
-            } else {
-                System.out.println("Verbindung bereits beendet.");
-            }
-        } catch (IOException e) {
-            System.out.println("Ein Fehler ist aufgetreten, ClientSocket konnte nicht beendet werden.");
-           // e.printStackTrace();
-            status = 1;
-        } finally {
-            System.exit(status);
-        }
     }
 
     /**
