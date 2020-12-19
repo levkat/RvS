@@ -95,11 +95,17 @@ public class Client {
             return in.readLine();
         } catch (ConnectException e) {
             System.out.println("Die Verbindung wurde vom Server abgebrochen");
-            disconnect();
+                try {
+                    if (clientSocket != null) {
+                        clientSocket.close();
+                    }
+                } catch (Exception ignored) {
+            }
         }catch (IOException e) {
             System.out.println("Fehler in I/O Streams");
+            disconnect();
         } catch (Exception e) {
-            System.out.println("FEHLERRRRRR"); // DEBUG
+            disconnect();
             e.printStackTrace();
         }
         return "";
@@ -116,8 +122,9 @@ public class Client {
             if (!reply.isEmpty()) {
                 return reply.substring(reply.indexOf(" ")).trim().replace("\\n", "\n")
                         + System.lineSeparator();
-            } else {
-                return reply + System.lineSeparator();
+            }
+            else {
+                return reply;
             }
         } else {
             return reply + System.lineSeparator();
