@@ -23,15 +23,14 @@ public class ServerServices {
         ArrayList<String> tmp = findCMD(request);
         if(!tmp.get(0).isEmpty()) {
             try {
-                if (!request.equals("HISTORY") && !request.equals("DISCARD")) {
-                    history.add((history.size() + 1) + " " + request); // alle requests werden registriert und durchnummeriert
+                if (!request.startsWith("HISTORY") && !request.startsWith("DISCARD")) {
+                    history.add(request); // alle requests werden registriert und durchnummeriert
                 }
                 switch (tmp.get(0)) {
                     case "GET":
                         res = get(tmp.get(1));
                         break;
                     case "ADD":
-                        res = "SUM ";
                         if (tmp.size() <= 2) {
                             res = WRONG;
                         } else if (!tmp.get(1).isEmpty() && !tmp.get(2).isEmpty()) {
@@ -41,37 +40,22 @@ public class ServerServices {
                         }
                         break;
                     case "SUB":
-                        res = "DIFFERENCE ";
                         if (!tmp.get(1).isEmpty() && !tmp.get(2).isEmpty()) {
                             res += calc(tmp.get(1), tmp.get(2), '-');
-                        } else if (!tmp.get(1).isEmpty() && tmp.get(2).isEmpty()) {
-                            res += calc(tmp.get(1));
-                        } else if (tmp.get(1).isEmpty() && !tmp.get(2).isEmpty()) {
-                            res += calc(tmp.get(2));
                         } else {
                             res = WRONG;
                         }
                         break;
                     case "MUL":
-                        res = "PRODUCT ";
                         if (!tmp.get(1).isEmpty() && !tmp.get(2).isEmpty()) {
                             res += calc(tmp.get(1), tmp.get(2), '*');
-                        } else if (!tmp.get(1).isEmpty() && tmp.get(2).isEmpty()) {
-                            res += calc(tmp.get(1));
-                        } else if (tmp.get(1).isEmpty() && !tmp.get(2).isEmpty()) {
-                            res += calc(tmp.get(2));
                         } else {
                             res = WRONG;
                         }
                         break;
                     case "DIV":
-                        res = "QUOTIENT ";
                         if (!tmp.get(1).isEmpty() && !tmp.get(2).isEmpty()) {
                             res += calc(tmp.get(1), tmp.get(2), '/');
-                        } else if (!tmp.get(1).isEmpty() && tmp.get(2).isEmpty()) {
-                            res += calc(tmp.get(1));
-                        } else if (tmp.get(1).isEmpty() && !tmp.get(2).isEmpty()) {
-                            res += calc(tmp.get(2));
                         } else {
                             res = WRONG;
                         }
@@ -80,7 +64,12 @@ public class ServerServices {
                         StringBuilder build = new StringBuilder("ECHO ");
                         if (!tmp.get(1).isEmpty()) {
                             for (int i = 1; i < tmp.size(); i++) {
-                                build.append(tmp.get(i));
+                                if (i != 1){
+                                    build.append( " " + tmp.get(i));
+                                }
+                                else {
+                                    build.append(tmp.get(i));
+                                }
                             }
                         }
                         res = build.toString();
@@ -96,13 +85,13 @@ public class ServerServices {
                         if (tmp.size() == 1) {
                             res+= listAll(history);
                         } else if(tmp.size() == 2) {
-                            history.remove(history.size()-1); // weil ich blöd bin, temporäre Lösung
+                            //history.remove(history.size()-1); // weil ich blöd bin, temporäre Lösung
                             res+= listAll(history, Integer.parseInt(tmp.get(1)));
                         }
                         else {
                             throw new IllegalArgumentException();
                         }
-                        history.add((history.size() + 1) + " " + request);
+                        history.add(request);
                         break;
                     default:
                         res = UNKNOWN;
@@ -128,33 +117,40 @@ public class ServerServices {
             }
         }
         else {
-            arr.add("Unbekannte Anfrage!");
+            arr.add(UNKNOWN);
         }
-        return arr;
+        if (request.matches("(ADD|SUB|MUL|DIV).*") && arr.size() == 3){
+            return arr;
+        }
+        else if(request.matches("(GET).*") && arr.size() == 2){
+            return arr;
+        }
+        else if(request.matches("(PING).*") && arr.size() == 1){
+            return arr;
+        }
+        else if(request.matches("(HISTORY).*") && arr.size() < 2){
+            return arr;
+        }
+        else if(request.matches("(ECHO|DISCARD).*")){
+            return arr;
+        }
+        else {
+            arr.clear();
+            arr.add("OOPS");
+            return arr;
+        }
     }
     private static String get(String datetime){
         String res;
-        switch(datetime.toLowerCase()){
-            case "time":
+        switch(datetime){
+            case "Time":
                 res = "TIME " + new SimpleDateFormat("HH:mm:ss").format(new Date());
                 break;
-            case "date":
+            case "Date":
                 res = "DATE " + new SimpleDateFormat("dd/MM/yyyy").format(new Date());
                 break;
             default:
                 res = WRONG;
-        }
-        return res;
-    }
-    private static String calc(String one){
-        String res = "";
-        try{
-            int sum = Integer.parseInt(one);
-            res += sum;
-        }
-        catch(NumberFormatException e)
-        {
-            return WRONG;
         }
         return res;
     }
@@ -175,14 +171,15 @@ public class ServerServices {
             switch (operator) {
                 case '+':
                     res += a + b;
+                    res = "SUM " + res;
                     break;
 
                 case '-':
-                    res += a - b;
+                    res += "DIFFERENCE " + (a - b);
                     break;
 
                 case '*':
-                    res += a * b;
+                    res += "PRODUCT " + (a * b);
                     break;
 
                 case '/':
@@ -193,9 +190,9 @@ public class ServerServices {
                             float floaty = (float) a / (float) b;
                             res += floaty;
                         }
-
+                        res = "QUOTIENT " + res;
                     } else {
-                        res = "undefined";
+                        res = "QUOTIENT undefined";
                     }
                     break;
             }

@@ -24,6 +24,8 @@ public class Server{
     private boolean run = true;
     private Logger log;
     private ServerServices handler = new ServerServices();
+    private Socket connectionSocket;
+
 
     /**
      * Diese Methode beinhaltet die gesamte Ausführung (Verbindungsaufbau und Beantwortung
@@ -34,7 +36,7 @@ public class Server{
             listen = new ServerSocket(port);
             do {
                 try {
-                    Socket connectionSocket = listen.accept();
+                    connectionSocket = listen.accept();
                     PrintWriter writer = new PrintWriter(connectionSocket.getOutputStream(), true);
                     BufferedReader input = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream(), StandardCharsets.UTF_8));
                     String line;
@@ -42,7 +44,6 @@ public class Server{
                         //line = input.readLine();
                         writer.println(handler.handleRequest(line));
                     }
-                    connectionSocket.close();
                 }
                 catch (SocketException e){
                     System.out.println(System.lineSeparator() + "Die Verbindung wurde abgebrochen");
@@ -52,6 +53,7 @@ public class Server{
                 }
                 finally {
                     handler.resetList();
+                    connectionSocket.close();
                 }
             }while (true);
         }
