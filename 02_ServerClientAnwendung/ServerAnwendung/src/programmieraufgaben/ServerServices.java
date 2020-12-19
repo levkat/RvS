@@ -31,41 +31,23 @@ public class ServerServices {
                         res = get(tmp.get(1));
                         break;
                     case "ADD":
-                        if (tmp.size() <= 2) {
-                            res = WRONG;
-                        } else if (!tmp.get(1).isEmpty() && !tmp.get(2).isEmpty()) {
-                            res += calc(tmp.get(1), tmp.get(2), '+');
-                        } else {
-                            res = WRONG;
-                        }
+                        res += calc(tmp.get(1), tmp.get(2), '+');
                         break;
                     case "SUB":
-                        if (!tmp.get(1).isEmpty() && !tmp.get(2).isEmpty()) {
-                            res += calc(tmp.get(1), tmp.get(2), '-');
-                        } else {
-                            res = WRONG;
-                        }
+                        res += calc(tmp.get(1), tmp.get(2), '-');
                         break;
                     case "MUL":
-                        if (!tmp.get(1).isEmpty() && !tmp.get(2).isEmpty()) {
-                            res += calc(tmp.get(1), tmp.get(2), '*');
-                        } else {
-                            res = WRONG;
-                        }
+                        res += calc(tmp.get(1), tmp.get(2), '*');
                         break;
                     case "DIV":
-                        if (!tmp.get(1).isEmpty() && !tmp.get(2).isEmpty()) {
-                            res += calc(tmp.get(1), tmp.get(2), '/');
-                        } else {
-                            res = WRONG;
-                        }
+                        res += calc(tmp.get(1), tmp.get(2), '/');
                         break;
                     case "ECHO":
                         StringBuilder build = new StringBuilder("ECHO ");
                         if (!tmp.get(1).isEmpty()) {
                             for (int i = 1; i < tmp.size(); i++) {
                                 if (i != 1){
-                                    build.append( " " + tmp.get(i));
+                                    build.append(" ").append(tmp.get(i));
                                 }
                                 else {
                                     build.append(tmp.get(i));
@@ -119,7 +101,7 @@ public class ServerServices {
         else {
             arr.add(UNKNOWN);
         }
-        if (request.matches("(ADD|SUB|MUL|DIV).*") && arr.size() == 3){
+        if (request.matches("(ADD|SUB|MUL|DIV)\\s\\d+\\s\\d+") && arr.size() == 3){
             return arr;
         }
         else if(request.matches("(GET).*") && arr.size() == 2){
