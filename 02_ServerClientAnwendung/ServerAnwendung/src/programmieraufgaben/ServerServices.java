@@ -78,7 +78,7 @@ public class ServerServices {
                         history.add(request);
                         break;
                     case "OOPS":
-                        history.add(request);
+                        //history.add(request);
                         return WRONG;
                     default:
                         res = UNKNOWN;
@@ -112,7 +112,7 @@ public class ServerServices {
         }
         else {
             System.out.println("matcher");
-            history.add(request);
+            //history.add(request);
             arr.add(UNKNOWN);
             return arr;
         }
