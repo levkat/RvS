@@ -46,12 +46,14 @@ public class ServerServices {
                         StringBuilder build = new StringBuilder("ECHO ");
                         if (!tmp.get(1).isEmpty()) {
                             for (int i = 1; i < tmp.size(); i++) {
-                                if (i != 1){
+                               /* if (i != 1){
                                     build.append(" ").append(tmp.get(i));
                                 }
-                                else {
+                                //TODO update
+                                */
+                             //   else {
                                     build.append(tmp.get(i));
-                                }
+                               // }
                             }
                         }
                         res = build.toString();
@@ -75,6 +77,9 @@ public class ServerServices {
                         }
                         history.add(request);
                         break;
+                    case "OOPS":
+                        history.add(request);
+                        return WRONG;
                     default:
                         res = UNKNOWN;
                         break;
@@ -93,30 +98,45 @@ public class ServerServices {
         ArrayList<String> arr = new ArrayList<>();
         Pattern pat = Pattern.compile("\\S+");
         Matcher m = pat.matcher(request);
-        if (request.matches("(GET|ADD|SUB|MUL|DIV|ECHO|DISCARD|PING|HISTORY).*")){
+        if(request.matches("(ECHO|DISCARD)\\b.*")){
+            arr.add(request.split("\\s",2)[0]);
+            System.out.println(request.split("\\s",2)[0]);
+            arr.add(request.split("(?<=ECHO|DISCARD)\\s")[1]);
+            System.out.println(request.split("(?<=ECHO|DISCARD)\\s")[1]);
+            return arr;
+        }
+        if (request.matches("(GET|ADD|SUB|MUL|DIV|PING|HISTORY)\\b.*")){
             while(m.find()){
                 arr.add(m.group());
             }
         }
         else {
+            System.out.println("matcher");
+            history.add(request);
             arr.add(UNKNOWN);
-        }
-        if (request.matches("(ADD|SUB|MUL|DIV)\\s\\d+\\s\\d+") && arr.size() == 3){
             return arr;
         }
-        else if(request.matches("(GET).*") && arr.size() == 2){
+        if (request.matches("(ADD|SUB|MUL|DIV)\\b\\s\\d+\\s\\d+") && arr.size() == 3){
             return arr;
         }
-        else if(request.matches("(PING).*") && arr.size() == 1){
+        else if(request.matches("(GET)\\b.*") && arr.size() == 2){
             return arr;
         }
-        else if(request.matches("(HISTORY).*") && arr.size() < 2){
+        else if(request.matches("(PING)\\b.*") && arr.size() == 1){
             return arr;
         }
-        else if(request.matches("(ECHO|DISCARD).*")){
+        else if(request.matches("\\b(HISTORY)\\b\\s\\d+") && arr.size() < 3){
+            return arr;
+        }
+        else if (request.matches("(HISTORY)\\b") && arr.size() < 2){
+            return arr;
+        }
+        else if(request.matches("(ECHO|DISCARD)\\b.*")){
             return arr;
         }
         else {
+            System.out.println(System.lineSeparator() + arr.size());
+            System.out.println("last call");
             arr.clear();
             arr.add("OOPS");
             return arr;
