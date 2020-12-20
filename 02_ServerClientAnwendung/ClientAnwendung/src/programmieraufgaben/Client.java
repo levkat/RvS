@@ -92,7 +92,7 @@ public class Client {
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
             out = new PrintWriter(clientSocket.getOutputStream(), true);
             out.println(userInput);
-            return in.readLine();
+            return in.readLine(); //TODO maybe return array? will help in extract
         } catch (ConnectException e) {
             System.out.println("Die Verbindung wurde vom Server abgebrochen");
                 try {
@@ -118,9 +118,10 @@ public class Client {
      * @return Ausgabe für die Konsole
      */
     public String extract(String reply) {
-        if (!reply.startsWith("PONG")) {
-            if (!reply.isEmpty()) {
-                return reply.substring(reply.indexOf(" ")).trim().replace("\\n", "\n")
+        //System.out.println(reply);
+        if (!reply.startsWith("PONG") && !reply.isEmpty()) {
+            if (!reply.equals("")) {
+                return reply.replaceFirst("\\w+\\s","").replace("\\n", "\n")
                         + System.lineSeparator();
             }
             else {
