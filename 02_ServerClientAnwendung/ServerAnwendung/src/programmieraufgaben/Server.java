@@ -5,7 +5,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
-import java.util.logging.Logger;
 
 /**
  * Die Server-Klasse enthält alle Methoden zum Erstellen, Verwenden und Schließen des Servers.
@@ -15,9 +14,6 @@ import java.util.logging.Logger;
  * Es dürfen beliebig viele Methoden und Klassen erzeugt werden, solange
  * die von den oben genannten Methoden aufgerufen werden.
  */
-// FIXME: 16.12.20 disconnect() !=null before close, exceptions
-// FIXME: 16.12.20 execute() richtige Exceptions werfen, finaly close !=null
-// TODO: 17.12.20 rework checkport() check isAvailable with BindException in execute
 public class Server{
     private int port;
     private ServerSocket listen;
@@ -39,7 +35,6 @@ public class Server{
                     BufferedReader input = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream(), StandardCharsets.UTF_8));
                     String line;
                     while ((line = input.readLine()) != null) {
-                        //line = input.readLine();
                         writer.println(handler.handleRequest(line));
                     }
                 }
@@ -114,14 +109,15 @@ public class Server{
             return true;
         } catch (IOException e){
             System.out.println("Fehler beim Verbindungsaufbau! Es konnte keine TCP-Verbindung zum Server mit\n" +
-                    "IP-Adresse localhost (Port: " + port + ") hergestellt werden."); //TODO right message
+                    "IP-Adresse localhost (Port: " + port + ") hergestellt werden.");
             return false;
-        }
-        catch (SecurityException e){
-            System.out.println("Security Exception"); //TODO right message
         }
         catch (IllegalArgumentException e){
             System.out.println("Kein korrekter Port! Aktuell ist nur Port 2020 möglich.");
+        }
+        catch (Exception e){
+            System.out.println("Unerwartete Fehler aufgetaucht:");
+            System.out.println(e.getMessage());
         }
         return false;
     }
