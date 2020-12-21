@@ -13,9 +13,10 @@ public class ServerServices {
     private static List<String> history = new LinkedList<>();
 
     /**
-     *
-     * @param request
-     * @return
+     * Methode, die anhand der Userseingabe die richtige zu auszuführende Methode in kombination mit dem Befehl auswählt.
+     * @param request aus inputstream
+     *                wird falls nötig in findCMD getrennt in einzelne Tokens getrennt und auf richtigkeit überfprüft.
+     * @return response / antwort des Servers
      */
     public static String handleRequest(String request){
         String res = "";
@@ -27,7 +28,7 @@ public class ServerServices {
                 }
                 switch (tmp.get(0)) {
                     case "GET":
-                        res = get(tmp.get(1));
+                        res = getDateTime(tmp.get(1));
                         break;
                     case "ADD":
                         res += calc(tmp.get(1), tmp.get(2), '+');
@@ -96,20 +97,23 @@ public class ServerServices {
     }
 
     /**
-     *
-     * @param request
-     * @return
+     * Erkennt und Trennt die Befehle nach die vorgegbene Mustern und überprüft auf Korrektheit
+     * @param request Eingabe des Users
+     * @return Liste der Elemente des Befehls
      */
     private static ArrayList <String> findCMD(String request){
         ArrayList<String> arr = new ArrayList<>();
         Pattern pat = Pattern.compile("\\S+");
         Matcher m = pat.matcher(request);
+        //Sonderfall, da nach dem Befehl kein bestimmten Muster
         if(request.matches("(ECHO|DISCARD)\\b.*")){
             String[] test = request.split("(?<=ECHO|DISCARD)");
             arr = new ArrayList<>(Arrays.asList(test));
             return arr;
         }
+        //Überprüfung, ob ein richtigen Befehl in der Eingabe des Users sich befindet
         if (request.matches("(GET|ADD|SUB|MUL|DIV|PING|HISTORY)\\b.*")){
+            //Trennung nach nicht leerzeichen, könnte auch theoretisch mit split() nach leerzeichen getrennt werden.
             while(m.find()){
                 arr.add(m.group());
             }
@@ -119,6 +123,7 @@ public class ServerServices {
             arr.add(UNKNOWN);
             return arr;
         }
+        //Ab hier überprüfung jeder Befehl nach dem richtigen Muster.
         if (request.matches("(ADD|SUB|MUL|DIV)\\b\\s(-|\\+)?\\d+\\s(-|\\+)?\\d+") && arr.size() == 3){
             return arr;
         }
@@ -134,22 +139,19 @@ public class ServerServices {
         else if (request.matches("(HISTORY)\\b") && arr.size() < 2){
             return arr;
         }
-        else if(request.matches("(ECHO|DISCARD)\\b.*")){
-            return arr;
-        }
         else {
             arr.clear();
-            arr.add("OOPS");
+            arr.add("OOPS"); //falls ein falsches Format auftaucht für den requestHandler
             return arr;
         }
     }
 
     /**
-     *
-     * @param datetime
-     * @return
+     * Diese Methode gibt Datum oder Zeit zurück
+     * @param datetime Date oder Time request
+     * @return Zeit oder Datum
      */
-    private static String get(String datetime){
+    private static String getDateTime(String datetime){
         String res;
         switch(datetime){
             case "Time":
@@ -165,11 +167,11 @@ public class ServerServices {
     }
 
     /**
-     *
-     * @param first
-     * @param second
-     * @param operator
-     * @return
+     * Calculator
+     * @param first Zahl
+     * @param second Zahl
+     * @param operator arithmetisches Zeichen
+     * @return Ergebnis
      */
     private static String calc(String first, String second, char operator){
         String res = "";
@@ -233,11 +235,7 @@ public class ServerServices {
         }
         try{
             StringBuilder output = new StringBuilder();
-            /*for (String s : list) {
-                output.append(s);
-                output.append("\\n");
-            }*/
-            //TODO Die älteste Abfrage soll als letzte auftauchen
+            //Die älteste Abfrage soll als letzte auftauchen
                 for (int i = list.size()-1; i >= 0; i--){
                 output.append(list.get(i));
                 if( i > 0){
@@ -270,7 +268,7 @@ public class ServerServices {
                 return listAll(list);
             }
             else
-            {
+            {    //Die älteste Abfrage soll als letzte auftauchen
                 for( int i = list.size()-1; i >= list.size() - lastRequests; i--){
                     output.append(list.get(i));
                     if(i > list.size() -lastRequests) {
@@ -285,7 +283,24 @@ public class ServerServices {
             return WRONG;
         }
     }
+
+    /**
+     * Nach jede neue Verbindung wird die History gelöscht
+     */
     public void resetList(){
         history.clear();
     }
 }
+
+/**
+*                ____________________
+ *              |                   |
+ *             |     Bitte         |
+ *            | lass uns bestehen.|
+ *           |                   |
+ *          |___________________|
+ *          (\__/) ||
+ *          (•ㅅ•) ||
+ *          / 　 づ
+*
+**/
