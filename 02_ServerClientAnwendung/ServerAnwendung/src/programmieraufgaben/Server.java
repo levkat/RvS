@@ -49,7 +49,8 @@ public class Server{
                     System.out.println(System.lineSeparator() + "Die Verbindung wurde abgebrochen");
                 }
                 catch (Exception e){
-                    System.out.println(System.lineSeparator() + "Oops, uns ist folgende Fehler unterlaufen:" + System.lineSeparator() + e.getMessage());
+                    System.out.println(System.lineSeparator() + "Oops, uns ist folgende Fehler unterlaufen:" + System.lineSeparator());
+                    e.printStackTrace();
                 }
                 finally {
                     handler.resetList();

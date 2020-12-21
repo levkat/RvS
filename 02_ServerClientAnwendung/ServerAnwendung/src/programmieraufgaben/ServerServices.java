@@ -1,10 +1,7 @@
 package programmieraufgaben;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -99,10 +96,12 @@ public class ServerServices {
         Pattern pat = Pattern.compile("\\S+");
         Matcher m = pat.matcher(request);
         if(request.matches("(ECHO|DISCARD)\\b.*")){
-            arr.add(request.split("\\s",2)[0]);
-            System.out.println(request.split("\\s",2)[0]);
-            arr.add(request.split("(?<=ECHO|DISCARD)\\s")[1]);
-            System.out.println(request.split("(?<=ECHO|DISCARD)\\s")[1]);
+            String[] test = request.split("(?<=ECHO|DISCARD)");
+            arr = new ArrayList<>(Arrays.asList(test));
+            arr.forEach(System.out::println);
+            //System.out.println(request.split("\\s",2)[0]);
+            //arr.add(request.split("(?<=ECHO|DISCARD)\\s")[1]);
+            //System.out.println(request.split("(?<=ECHO|DISCARD)\\s")[1]);
             return arr;
         }
         if (request.matches("(GET|ADD|SUB|MUL|DIV|PING|HISTORY)\\b.*")){
@@ -132,6 +131,7 @@ public class ServerServices {
             return arr;
         }
         else if(request.matches("(ECHO|DISCARD)\\b.*")){
+            arr.forEach(System.out::println);
             return arr;
         }
         else {
