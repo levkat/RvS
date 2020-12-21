@@ -95,7 +95,7 @@ public class Client {
             return in.readLine(); //TODO maybe return array? will help in extract
         } catch (ConnectException e) {
             System.out.println("Die Verbindung wurde vom Server abgebrochen");
-                try {
+                try { //FIXME Takes too long
                     if (clientSocket != null) {
                         clientSocket.close();
                     }
@@ -121,12 +121,15 @@ public class Client {
         //System.out.println(reply);
         if (!reply.startsWith("PONG") && !reply.isEmpty()) {
             if (!reply.equals("")) {
-                return reply.replaceFirst("\\w+\\s","").replace("\\n", "\n")
+                return reply.replaceFirst("\\w+\\s", "").replace("\\n", "\n")
                         + System.lineSeparator();
-            }
-            else {
+            } else {
                 return reply;
             }
+        }
+        else if (reply.isEmpty()){
+                return "";
+
         } else {
             return reply + System.lineSeparator();
         }
