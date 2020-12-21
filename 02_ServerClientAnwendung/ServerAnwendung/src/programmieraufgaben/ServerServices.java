@@ -64,9 +64,17 @@ public class ServerServices {
                     case "HISTORY":
                         res = "HISTORY "; //  Einheitliche Serverantwort für Client.extract()
                         if (tmp.size() == 1) {
+                            if(listAll(history).equals("ERROR Keine Historie vorhanden!")){
+                                res = "";
+                                return "ERROR Keine Historie vorhanden!";
+                            }
                             res+= listAll(history);
                         } else if(tmp.size() == 2) {
                             //history.remove(history.size()-1); // weil ich blöd bin, temporäre Lösung
+                            if(listAll(history).equals("ERROR Keine Historie vorhanden!")){
+                                res = "";
+                                return "ERROR Keine Historie vorhanden!";
+                            }
                             res+= listAll(history, Integer.parseInt(tmp.get(1)));
                         }
                         else {
@@ -98,7 +106,7 @@ public class ServerServices {
         if(request.matches("(ECHO|DISCARD)\\b.*")){
             String[] test = request.split("(?<=ECHO|DISCARD)");
             arr = new ArrayList<>(Arrays.asList(test));
-            arr.forEach(System.out::println);
+            //arr.forEach(System.out::println);
             //System.out.println(request.split("\\s",2)[0]);
             //arr.add(request.split("(?<=ECHO|DISCARD)\\s")[1]);
             //System.out.println(request.split("(?<=ECHO|DISCARD)\\s")[1]);
@@ -110,18 +118,17 @@ public class ServerServices {
             }
         }
         else {
-            System.out.println("matcher");
             //history.add(request);
             arr.add(UNKNOWN);
             return arr;
         }
-        if (request.matches("(ADD|SUB|MUL|DIV)\\b\\s\\d+\\s\\d+") && arr.size() == 3){
+        if (request.matches("(ADD|SUB|MUL|DIV)\\b\\s(-|\\+)?\\d+\\s(-|\\+)?\\d+") && arr.size() == 3){
             return arr;
         }
         else if(request.matches("(GET)\\b.*") && arr.size() == 2){
             return arr;
         }
-        else if(request.matches("(PING)\\b.*") && arr.size() == 1){
+        else if(request.matches("(PING)\\b") && arr.size() == 1){
             return arr;
         }
         else if(request.matches("\\b(HISTORY)\\b\\s\\d+") && arr.size() < 3){
@@ -131,12 +138,11 @@ public class ServerServices {
             return arr;
         }
         else if(request.matches("(ECHO|DISCARD)\\b.*")){
-            arr.forEach(System.out::println);
+            //arr.forEach(System.out::println);
             return arr;
         }
         else {
-            System.out.println(System.lineSeparator() + arr.size());
-            System.out.println("last call");
+            //System.out.println(System.lineSeparator() + arr.size());
             arr.clear();
             arr.add("OOPS");
             return arr;

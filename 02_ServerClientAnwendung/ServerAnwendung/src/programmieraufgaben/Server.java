@@ -21,8 +21,6 @@ import java.util.logging.Logger;
 public class Server{
     private int port;
     private ServerSocket listen;
-    private boolean run = true;
-    private Logger log;
     private ServerServices handler = new ServerServices();
     private Socket connectionSocket;
 
