@@ -24,7 +24,7 @@ public class Main {
         if(input.hasNextInt()){
             portNumber = Integer.parseInt(input.nextLine());
 
-            boolean switchCreated = SwitchingEngine.createSwitch(portNumber);
+            boolean switchCreated = engine.createSwitch(portNumber);
 
             if(switchCreated){
 
@@ -36,7 +36,7 @@ public class Main {
 
                     command = input.nextLine();
 
-                    abort = SwitchingEngine.handleCommand(command);
+                    abort = engine.handleCommand(command);
                 }
                 while (!abort);
             }
