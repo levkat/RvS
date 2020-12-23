@@ -237,9 +237,11 @@ public class SwitchingEngine {
         if (!oldestStamp.equals(actual_timeStamp)){
             System.out.println(oldestStamp.equals(actual_timeStamp));
             System.out.println("delete loop");
-            for (int i = 0; i < table.length; i++){ //TODO Broken
-                if (table[i] != null && oldestStamp.compareTo(table[i].getCleanTime())>0){
-                    System.out.println("inside delete");
+            System.out.println("Actual Time: " + actual_timeStamp.toString());
+            System.out.println("Delete limit: " + oldestStamp.toString());
+            for (int i = 0; i < table.length; i++){
+                if (table[i] != null && oldestStamp.isBefore(table[i].getCleanTime())){
+                    System.out.println("deleted: " + table[i].getCleanTime().toString());
                     table[i] = null;
                 }
             }
