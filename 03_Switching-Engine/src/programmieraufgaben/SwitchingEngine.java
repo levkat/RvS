@@ -1,6 +1,8 @@
 package programmieraufgaben;
 
 import javax.swing.text.html.parser.Entity;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -52,7 +54,7 @@ public class SwitchingEngine {
         Pattern pat = Pattern.compile("\\S+");
         Matcher m = pat.matcher(command);
         try {
-            if (command.matches("\\b(frame)\\s\\d+\\s\\d+\\s\\d+\\b|\\b(del)\\s\\d+[sm]{1}\\b|^(table|statistics|exit)$")) {
+            if (command.matches("\\b(frame)\\s\\d+\\s\\d+\\s\\d+\\b|\\b(del)\\s\\d+(s|min)\\b|^(table|statistics|exit)$")) {
 
                 while (m.find()) {
                     arr.add(m.group());
@@ -84,7 +86,12 @@ public class SwitchingEngine {
                     printStats();
                     break;
                 case "del":
-                    System.out.println("NOCH ZU IMPLEMENTIEREN"); //TODO Methode bauen zum löschen von X
+                    Pattern timePattern = Pattern.compile("(?>(\\d+))(s|min)");
+                    Matcher time = timePattern.matcher(arr.get(1));
+                    if (time.find( )) {
+                        del(Integer.parseInt(time.group(1)), time.group(2));
+                    }
+
                     break;
                 case "exit":
                     return true;
@@ -147,7 +154,7 @@ public class SwitchingEngine {
             System.out.println("Target nicht in der Tabelle");
             System.out.println("---------------");
             table[senderAddress] = new tableEntry(port);
-            ports[table[targetAddress].getPort()]++; //added
+            //ports[table[targetAddress].getPort()]++; //added
             ports[port]++; //added
             System.out.println("Ausgabe auf Port " + table[senderAddress].getPort() + ".");
         }
@@ -216,6 +223,30 @@ public class SwitchingEngine {
         }
     }
 
+    public static void del(int time, String unit){
+        LocalTime actual_timeStamp = java.time.LocalTime.now();
+        LocalTime oldestStamp = actual_timeStamp;
+        if(unit.equals("min")) {
+            System.out.println("minutes");
+            oldestStamp = actual_timeStamp.minusMinutes(time);
+        }
+        else if (unit.equals("s")){
+            System.out.println("seconds");
+            oldestStamp = actual_timeStamp.minusSeconds(time);
+        }
+        if (!oldestStamp.equals(actual_timeStamp)){
+            System.out.println(oldestStamp.equals(actual_timeStamp));
+            System.out.println("delete loop");
+            for (int i = 0; i < table.length; i++){ //TODO Broken
+                if (table[i] != null && oldestStamp.compareTo(table[i].getCleanTime())>0){
+                    System.out.println("inside delete");
+                    table[i] = null;
+                }
+            }
+        }
+
+    }
+
     private static void printStats(){
         System.out.format("%s%7s\n","Port","Frames");
         for (int i = 1; i < ports.length; i++) {
@@ -240,5 +271,6 @@ class tableEntry {
         this.port = port;
     }
 
+    public LocalTime getCleanTime(){return timeStamp;}
     public String getTimeStamp(){ return timeStamp.format(hhmmss); }
 }
