@@ -1,10 +1,12 @@
 package programmieraufgaben;
 
-import java.text.SimpleDateFormat;
+import javax.swing.text.html.parser.Entity;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,7 +21,7 @@ import java.util.regex.Pattern;
 public class SwitchingEngine {
     private static final String WRONG = "Ungültige Eingabe!";
     private static int [] ports;
-    private static ArrayList<Entity> table;
+    private static tableEntry[] table;
 
     /**
      * Diese Methode überprüft die Eingabe und erstellt die für den
@@ -32,9 +34,10 @@ public class SwitchingEngine {
             System.out.println("Nur natürliche Zahlen ab 1 sind erlaubt.");
             return false;
         }
-        ports = new int[portNumber];
+        ports = new int[portNumber + 1];
         //table = new ArrayList[portNumber];
-        table = new ArrayList<>();
+        table = new tableEntry[256];
+        System.out.println("\nEin " + portNumber +"-Port-Switch wurde erzeugt.\n");
         return true;
     }
 
@@ -60,19 +63,19 @@ public class SwitchingEngine {
             switch (arr.get(0)) {
                 case "frame":
                     if (Integer.parseInt(arr.get(1)) > ports.length ){
-                        System.out.println("Der von Ihnen ausgewählten Port: " + arr.get(1) + " befindet sich außerhalb, die von Ihnen gewünschten Anzahl an Ports(" + ports.length + ") im Switch");
+                        System.out.println("\nDer von Ihnen ausgewählten Port: " + arr.get(1) + " befindet sich außerhalb, die von Ihnen gewünschten Anzahl an Ports(" + ports.length + ") im Switch\n");
                         return false;
                     }
                     if (!arr.get(2).matches("\\b(1?[0-9]{1,2}|2[0-4][0-9]|25[0-4])\\b")){
-                        System.out.println("Die von Ihnen eingegbene Senderadresse: " + arr.get(2) + " befindet sich außerhalb die Erlaubten Adressen 1-254" );
+                        System.out.println("\nDie von Ihnen eingegbene Senderadresse: " + arr.get(2) + " befindet sich außerhalb die Erlaubten Adressen 1-254\n" );
                         return false;
                 }
 
                     if(!arr.get(3).matches("\\b(1?[0-9]{1,2}|2[0-4][0-9]|25[0-5])\\b")){
-                        System.out.println("Die von Ihnen eingegbene Zieladresse: " + arr.get(3) + " befindet sich außerhalb die Erlaubten Adressen 1-255" );
+                        System.out.println("\nDie von Ihnen eingegbene Zieladresse: " + arr.get(3) + " befindet sich außerhalb die Erlaubten Adressen 1-255\n" );
                         return false;
                 }
-                    doSomething(Integer.parseInt(arr.get(1)),Integer.parseInt(arr.get(2)),Integer.parseInt(arr.get(3)));
+                    addFrame(Integer.parseInt(arr.get(1)),Integer.parseInt(arr.get(2)),Integer.parseInt(arr.get(3)));
                     break;
                 case "table":
                     printTable(table);
@@ -81,18 +84,104 @@ public class SwitchingEngine {
                     printStats();
                     break;
                 case "del":
-                    table.set(0,null); //TODO Methode bauen zum löschen von X
+                    System.out.println("NOCH ZU IMPLEMENTIEREN"); //TODO Methode bauen zum löschen von X
                     break;
                 case "exit":
                     return true;
                 default:
-                    System.out.println("Something went wrong :(");
+                    System.out.println("\nSomething went wrong :(\n");
                     return false;
             }
             return false;
     }
-    public void addFrame(String portNumber, String senderAddress, String targetAddress){}
+    //TODO Broadcast fall behandeln
+    private static void broadcoast(int port){
+            for (int i = 0; i < ports.length; i++) {
+                ports[i]++;
+            }
+            System.out.println("Broadcast: Ausgabe auf allen Ports außer Port"+ port + ".");
+    }
+    private static void addFrame(int port, int senderAddress, int targetAddress){
+        //wenn wenn Senderadresse nicht in der Tabelle
+        if (table[senderAddress] == null && table[targetAddress] == null){
+            System.out.println("---------------");
+            System.out.println("First");
+            System.out.println("Senderadresse nicht in der Tabelle");
+            System.out.println("---------------");
+            table[senderAddress] = (new tableEntry(port));
+            for (int i = 0; i < ports.length; i++) {
+                    ports[i]++;
+            }
+            System.out.println("Ausgabe auf allen Ports außer Port " + port + ".");
+        }
+       // else if(table[senderAddress] != null && table[targetAddress] == null && table[senderAddress].getPort() != table[targetAddress].getPort()){
+         //   broadcoast(table[senderAddress].getPort()); ///hier pause gemacht
+        //}
+        else if (table[senderAddress] == null && table[targetAddress] != null){ //added && table[targetAddress].getPort() != port
+            System.out.println("---------------");
+            System.out.println("Second");
+            System.out.println("Senderadresse nicht in der Tabelle");
+            System.out.println("---------------");
+            //table[senderAddress] = (new tableEntry(port));
+            /*for (int i = 0; i < ports.length; i++) {
+                if (ports[i] != port) {
+                    ports[i]++;
+                }
+            }
 
+             */
+            table[senderAddress] = new tableEntry(port);
+            /*
+            ports[table[targetAddress].getPort()]++; //senderAdress to targetAdress
+            ports[port]++; //added
+             */
+            if(targetAddress == 255){
+                broadcoast(port);
+            }
+            else {
+                ports[table[targetAddress].getPort()]++; //added
+                ports[port]++; //added
+                System.out.println("Ausgabe auf Port " + table[senderAddress].getPort() + ".");
+            }
+        }
+        //Zieladresse existiert in Table und zieladresse != senderadresse und eingetragene Zieladresse besitzt gleichen port wie senderadresse(Mehere Adressen auf gleichen Port).
+        else if (table[targetAddress] != null && (table[senderAddress].getPort() == port)){
+            System.out.println("---------------");
+            System.out.println("Mehrere Adressen auf gleichen Port");
+            System.out.println("---------------");
+            table[senderAddress] = new tableEntry(port);
+            ports[table[targetAddress].getPort()]++;
+            if(targetAddress == 255){
+                broadcoast(port);
+            }
+            else {
+                System.out.println("Frame wird gefiltert und verworfen.");
+            }
+        }
+
+        else if(table[targetAddress] != null && (table[senderAddress].getPort() != port)){
+            System.out.println("---------------");
+            System.out.println("Letzte");
+            System.out.println("---------------");
+            table[senderAddress].setPort(port);
+            ports[table[senderAddress].getPort()]++;
+            if(targetAddress == 255){
+                broadcoast(port);
+            }
+            else {
+                System.out.println("Ausgabe auf Port " + table[targetAddress].getPort());
+                ports[table[targetAddress].getPort()]++;
+            }
+        }
+        //TODO Add fall behandeln wo 2 frames auf gleichem port + frame ändert port FUNKTIONIERT NICHT
+       // else if (targetIndex != -1 && senderIndex != -1 && senderAddress != targetAddress && table.get(senderIndex).getPort() != port){
+           // table.get(senderIndex).setPort(port);
+         //   ports[table.get(targetIndex).getPort()-1]++;
+       // }
+        else {
+            System.out.println("OOPS! Uns ist ein Fehler unterlaufen");
+        }
+    }
     /*
     private static void printTable(){
         System.out.println("Adresse Port Zeit");
@@ -101,68 +190,45 @@ public class SwitchingEngine {
         }
     }
      */
-    private static void printTable(ArrayList<Entity> listForTable){
-        ArrayList<Entity> tmp = listForTable;
-        tmp.sort(Comparator.comparing(Entity::getAddress));
-        System.out.println("Adresse Port Zeit"); //TODO Wenn 3 stellig dann weniger spaces
-        for(Entity e : listForTable){
-            System.out.println(e.getAddress() + "    " + e.getPort() + "    " + e.getTimeStamp());
+    private static boolean isListEmpty(tableEntry[] list){
+        for (int i = 0; i < list.length; i++) {
+            if (list[i] != null){
+                return false;
+            }
         }
+        return true;
     }
 
-    private static void doSomething(int port, int senderAddress, int targetAddress){
-        int searchResult = findAddressIndex(targetAddress); //Falls gefunden gibt den Index des targets sonst -1
-        if ((ports[port-1] == 0) && (searchResult == -1)){
-            table.add(new Entity(senderAddress, port));
-            for (int i = 0; i < ports.length; i++) {
-                if (i != port - 1) {
-                    ports[i]++;
+    private static void printTable(tableEntry[] listForTable){
+        if (!isListEmpty(listForTable)) {
+            //System.out.println(System.lineSeparator());
+            System.out.format("%s%5s%5s\n","Adresse","Port", "Zeit"); //TODO Wenn 3 stellig dann weniger spaces
+            for (int i = 1; i < table.length ; i++) {
+                if (table[i] != null) {
+                    System.out.format("%7s%5s%9s\n", i, table[i].getPort(), table[i].getTimeStamp());
                 }
             }
-            System.out.println("Ausgabe auf allen Ports außer Port " + port + ".");
+            //System.out.println(System.lineSeparator());
         }
-        else if (searchResult != -1 && (table.get(searchResult).getAddress() != senderAddress) && (table.get(searchResult).getPort() == port)){
-            table.add(new Entity(port,senderAddress));
-            ports[port-1]++;
-            System.out.println("Frame wird gefiltert und verworfen.");
+        else{
+            System.out.println("\nDie Switch-Tabelle ist leer.\n");
         }
-        else if(searchResult != -1 && (table.get(searchResult).getAddress() == senderAddress) && (table.get(searchResult).getPort() != port)){
-            table.get(searchResult).setPort(port); //TODO Add fall behandeln wo 2 frames auf gleichem port + frame ändert port
-        }
-        else {
-            System.out.println("OOPS! Uns ist ein Fehler unterlaufen");
-        }
-    }
-
-    private static int findAddressIndex( int address) {
-        for (int i = 0; i < table.size(); i++) {
-            if (table.get(i).getAddress() == address){
-                return i;
-            }
-        }
-
-        return -1;
     }
 
     private static void printStats(){
-        System.out.println("Port Frames");
-        for (int i = 0; i < ports.length; i++) {
-            System.out.println(i+1 + "      " + ports[i]);
+        System.out.format("%s%7s\n","Port","Frames");
+        for (int i = 1; i < ports.length; i++) {
+            System.out.format("%4s%7s\n", i,ports[i]);
         }
     }
 }
-class Entity{
+class tableEntry {
     private int port;
-    private int address;
-    private SimpleDateFormat timeStamp;
-    public Entity(int address, int port){
+    private LocalTime timeStamp;
+    private DateTimeFormatter hhmmss = DateTimeFormatter.ofPattern("HH:mm:ss");
+    public tableEntry(int port){
         this.port = port;
-        this.address = address;
-        this.timeStamp =  new SimpleDateFormat("HH:mm:ss");
-    }
-
-    public int getAddress() {
-        return address;
+        this.timeStamp =  java.time.LocalTime.now();
     }
 
     public int getPort() {
@@ -173,8 +239,5 @@ class Entity{
         this.port = port;
     }
 
-    public void setAddress(int address) {
-        this.address = address;
-    }
-    public String getTimeStamp(){ return timeStamp.format(new Date()); }
+    public String getTimeStamp(){ return timeStamp.format(hhmmss); }
 }
