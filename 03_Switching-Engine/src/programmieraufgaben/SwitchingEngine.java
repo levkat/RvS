@@ -105,47 +105,54 @@ public class SwitchingEngine {
         //wenn wenn Senderadresse nicht in der Tabelle
         if (table[senderAddress] == null && table[targetAddress] == null){
             System.out.println("---------------");
-            System.out.println("First");
-            System.out.println("Senderadresse nicht in der Tabelle");
+            System.out.println("INIT");
+            System.out.println("Senderadresse nicht in der Tabelle && Target auch");
             System.out.println("---------------");
+            /**
+             * INIT
+             */
             table[senderAddress] = (new tableEntry(port));
+            /**
+             * BROADCAST
+             */
             for (int i = 0; i < ports.length; i++) {
                     ports[i]++;
             }
             System.out.println("Ausgabe auf allen Ports außer Port " + port + ".");
         }
-       // else if(table[senderAddress] != null && table[targetAddress] == null && table[senderAddress].getPort() != table[targetAddress].getPort()){
-         //   broadcoast(table[senderAddress].getPort()); ///hier pause gemacht
-        //}
-        else if (table[senderAddress] == null && table[targetAddress] != null){ //added && table[targetAddress].getPort() != port
+
+        else if (table[senderAddress] == null && table[targetAddress] != null && table[targetAddress].getPort() != port){
             System.out.println("---------------");
             System.out.println("Second");
             System.out.println("Senderadresse nicht in der Tabelle");
             System.out.println("---------------");
-            //table[senderAddress] = (new tableEntry(port));
-            /*for (int i = 0; i < ports.length; i++) {
-                if (ports[i] != port) {
-                    ports[i]++;
-                }
-            }
 
-             */
             table[senderAddress] = new tableEntry(port);
-            /*
-            ports[table[targetAddress].getPort()]++; //senderAdress to targetAdress
+
+            ports[table[targetAddress].getPort()]++; //added
             ports[port]++; //added
-             */
-            if(targetAddress == 255){
-                broadcoast(port);
-            }
-            else {
-                ports[table[targetAddress].getPort()]++; //added
-                ports[port]++; //added
-                System.out.println("Ausgabe auf Port " + table[senderAddress].getPort() + ".");
-            }
+            System.out.println("Ausgabe auf Port " + table[senderAddress].getPort() + ".");
+        }
+        else if (table[senderAddress] == null && table[targetAddress] != null && table[targetAddress].getPort() == port){
+            System.out.println("---------------");
+            System.out.println("Senderadresse nicht in der Tabelle");
+            System.out.println("INIT auf gleichem port wie target");
+            System.out.println("---------------");
+            table[senderAddress] = new tableEntry(port);
+            ports[port]++; //added
+            System.out.println("Frame wird gefiltert und verworfen.");
+        }
+        else if (table[senderAddress] != null && table[targetAddress] == null){
+            System.out.println("---------------");
+            System.out.println("Target nicht in der Tabelle");
+            System.out.println("---------------");
+            table[senderAddress] = new tableEntry(port);
+            ports[table[targetAddress].getPort()]++; //added
+            ports[port]++; //added
+            System.out.println("Ausgabe auf Port " + table[senderAddress].getPort() + ".");
         }
         //Zieladresse existiert in Table und zieladresse != senderadresse und eingetragene Zieladresse besitzt gleichen port wie senderadresse(Mehere Adressen auf gleichen Port).
-        else if (table[targetAddress] != null && (table[senderAddress].getPort() == port)){
+        else if ((table[senderAddress] != null && table[targetAddress] != null) && table[senderAddress] != table[targetAddress] && (table[senderAddress].getPort() == port)){
             System.out.println("---------------");
             System.out.println("Mehrere Adressen auf gleichen Port");
             System.out.println("---------------");
@@ -157,6 +164,13 @@ public class SwitchingEngine {
             else {
                 System.out.println("Frame wird gefiltert und verworfen.");
             }
+        }
+        else if ((table[senderAddress] != null && table[targetAddress] != null) && (table[senderAddress] == table[targetAddress]) && (table[senderAddress].getPort() == port)){
+            System.out.println("---------------");
+            System.out.println("sender und target gleich");
+            System.out.println("---------------");
+            ports[table[senderAddress].getPort()]++;
+            System.out.println("Frame wird gefiltert und verworfen.");
         }
 
         else if(table[targetAddress] != null && (table[senderAddress].getPort() != port)){
@@ -173,23 +187,10 @@ public class SwitchingEngine {
                 ports[table[targetAddress].getPort()]++;
             }
         }
-        //TODO Add fall behandeln wo 2 frames auf gleichem port + frame ändert port FUNKTIONIERT NICHT
-       // else if (targetIndex != -1 && senderIndex != -1 && senderAddress != targetAddress && table.get(senderIndex).getPort() != port){
-           // table.get(senderIndex).setPort(port);
-         //   ports[table.get(targetIndex).getPort()-1]++;
-       // }
         else {
             System.out.println("OOPS! Uns ist ein Fehler unterlaufen");
         }
     }
-    /*
-    private static void printTable(){
-        System.out.println("Adresse Port Zeit");
-        for (int i = 0; i < table.length; i++) {
-            System.out.println(table[i]);
-        }
-    }
-     */
     private static boolean isListEmpty(tableEntry[] list){
         for (int i = 0; i < list.length; i++) {
             if (list[i] != null){
