@@ -118,14 +118,17 @@ public class Client {
      * @return Ausgabe für die Konsole
      */
     public String extract(String reply) {
-        if (!reply.startsWith("PONG")) {
-            if (!reply.isEmpty()) {
-                return reply.substring(reply.indexOf(" ")).trim().replace("\\n", "\n")
+        if (!reply.startsWith("PONG") && !reply.isEmpty()) {
+            if (!reply.equals("")) {
+                return reply.replaceFirst("\\w+\\s", "").replace("\\n", "\n")
                         + System.lineSeparator();
-            }
-            else {
+            } else {
                 return reply;
             }
+        }
+        else if (reply.isEmpty()){
+                return "";
+
         } else {
             return reply + System.lineSeparator();
         }

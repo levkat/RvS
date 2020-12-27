@@ -1,34 +1,34 @@
 package programmieraufgaben;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// TODO: ? 17.12.20 extract logic from handleRequest() to methods so it only switches
-// FIXME: 17.12.20 (GET Time Date| ADD 1 2 3) funktioniert soll aber nicht
-// FIXME: 17.12.20 (ADD__1_2| ADD_1__2| ADD_1_2_______) funktioniert, soll nicht
-// TODO: ? 17.12.20 History als Klasse? -> "private History<String> history" in Server?
 
 public class ServerServices {
     private static final String UNKNOWN = "ERROR Unbekannte Anfrage!";
     private static final String WRONG = "ERROR Falsches Format!";
+    private static final String NO_HISTORY = "ERROR Keine Historie vorhanden!";
     private static List<String> history = new LinkedList<>();
 
+    /**
+     * Methode, die anhand der Userseingabe die richtige zu auszuführende Methode in kombination mit dem Befehl auswählt.
+     * @param request aus inputstream
+     *                wird falls nötig in findCMD getrennt in einzelne Tokens getrennt und auf richtigkeit überfprüft.
+     * @return response / antwort des Servers
+     */
     public static String handleRequest(String request){
         String res = "";
         ArrayList<String> tmp = findCMD(request);
         if(!tmp.get(0).isEmpty()) {
             try {
                 if (!request.startsWith("HISTORY") && !request.startsWith("DISCARD")) {
-                    history.add(request); // alle requests werden registriert und durchnummeriert
+                    history.add(request); // Alle Anfragen werden in Hisotry aufgenommen, ausser DISCARD und HISTORY(HISTORY wird erst nach der Bearbeitung aufgenommen)
                 }
                 switch (tmp.get(0)) {
                     case "GET":
-                        res = get(tmp.get(1));
+                        res = getDateTime(tmp.get(1));
                         break;
                     case "ADD":
                         res += calc(tmp.get(1), tmp.get(2), '+');
@@ -46,12 +46,7 @@ public class ServerServices {
                         StringBuilder build = new StringBuilder("ECHO ");
                         if (!tmp.get(1).isEmpty()) {
                             for (int i = 1; i < tmp.size(); i++) {
-                                if (i != 1){
-                                    build.append(" ").append(tmp.get(i));
-                                }
-                                else {
                                     build.append(tmp.get(i));
-                                }
                             }
                         }
                         res = build.toString();
@@ -63,18 +58,30 @@ public class ServerServices {
                         res = "PONG";
                         break;
                     case "HISTORY":
-                        res = "HISTORY "; //  Einheitliche Serverantwort für Client.extract()
+                        res = "HISTORY ";
                         if (tmp.size() == 1) {
+                            //Überprüft, ob es eine Fehlermeldung ausgegeben wurde
+                            if(listAll(history).equals(NO_HISTORY)){
+                                history.add(request);
+                                res = "";
+                                return NO_HISTORY;
+                            }
                             res+= listAll(history);
                         } else if(tmp.size() == 2) {
-                            //history.remove(history.size()-1); // weil ich blöd bin, temporäre Lösung
-                            res+= listAll(history, Integer.parseInt(tmp.get(1)));
+                            if(listAll(history).equals(NO_HISTORY)){
+                                history.add(request);
+                                res = "";
+                                return NO_HISTORY;
+                            }
+                            res+= listNlast(history, Integer.parseInt(tmp.get(1)));
                         }
                         else {
                             throw new IllegalArgumentException();
                         }
                         history.add(request);
                         break;
+                    case "OOPS":
+                        return WRONG;
                     default:
                         res = UNKNOWN;
                         break;
@@ -89,40 +96,62 @@ public class ServerServices {
         return res;
     }
 
+    /**
+     * Erkennt und Trennt die Befehle nach die vorgegbene Mustern und überprüft auf Korrektheit
+     * @param request Eingabe des Users
+     * @return Liste der Elemente des Befehls
+     */
     private static ArrayList <String> findCMD(String request){
         ArrayList<String> arr = new ArrayList<>();
         Pattern pat = Pattern.compile("\\S+");
         Matcher m = pat.matcher(request);
-        if (request.matches("(GET|ADD|SUB|MUL|DIV|ECHO|DISCARD|PING|HISTORY).*")){
+        //Sonderfall, da nach dem Befehl kein bestimmten Muster
+        if(request.matches("(ECHO|DISCARD)\\b.*")){
+            String[] test = request.split("(?<=ECHO|DISCARD)");
+            arr = new ArrayList<>(Arrays.asList(test));
+            return arr;
+        }
+        //Überprüfung, ob ein richtigen Befehl in der Eingabe des Users sich befindet
+        if (request.matches("(GET|ADD|SUB|MUL|DIV|PING|HISTORY)\\b.*")){
+            //Trennung nach nicht leerzeichen, könnte auch theoretisch mit split() nach leerzeichen getrennt werden.
             while(m.find()){
                 arr.add(m.group());
             }
         }
         else {
+            //history.add(request);
             arr.add(UNKNOWN);
-        }
-        if (request.matches("(ADD|SUB|MUL|DIV)\\s\\d+\\s\\d+") && arr.size() == 3){
             return arr;
         }
-        else if(request.matches("(GET).*") && arr.size() == 2){
+        //Ab hier überprüfung jeder Befehl nach dem richtigen Muster.
+        if (request.matches("(ADD|SUB|MUL|DIV)\\b\\s(-|\\+)?\\d+\\s(-|\\+)?\\d+") && arr.size() == 3){
             return arr;
         }
-        else if(request.matches("(PING).*") && arr.size() == 1){
+        else if(request.matches("(GET)\\b.*") && arr.size() == 2){
             return arr;
         }
-        else if(request.matches("(HISTORY).*") && arr.size() < 2){
+        else if(request.matches("(PING)\\b") && arr.size() == 1){
             return arr;
         }
-        else if(request.matches("(ECHO|DISCARD).*")){
+        else if(request.matches("\\b(HISTORY)\\b\\s\\d+") && arr.size() < 3){
+            return arr;
+        }
+        else if (request.matches("(HISTORY)\\b") && arr.size() < 2){
             return arr;
         }
         else {
             arr.clear();
-            arr.add("OOPS");
+            arr.add("OOPS"); //falls ein falsches Format auftaucht für den requestHandler
             return arr;
         }
     }
-    private static String get(String datetime){
+
+    /**
+     * Diese Methode gibt Datum oder Zeit zurück
+     * @param datetime Date oder Time request
+     * @return Zeit oder Datum
+     */
+    private static String getDateTime(String datetime){
         String res;
         switch(datetime){
             case "Time":
@@ -137,6 +166,13 @@ public class ServerServices {
         return res;
     }
 
+    /**
+     * Calculator
+     * @param first Zahl
+     * @param second Zahl
+     * @param operator arithmetisches Zeichen
+     * @return Ergebnis
+     */
     private static String calc(String first, String second, char operator){
         String res = "";
         try{
@@ -191,58 +227,80 @@ public class ServerServices {
     /**
      * History full
      * @param list alle bisher angekommene requests außer HISTORY selbst
-     * @return bash-ähnliche Darstellung, aufsteigend durchnummeriert von alt nach neu
+     * @return Gibt die Liste der bisherige Abfragen als String zurück
      */
     private static String listAll(List <String> list){
         if( list.isEmpty()) {
-            return "ERROR Keine Historie vorhanden!";
+            return NO_HISTORY;
         }
         try{
             StringBuilder output = new StringBuilder();
-            for (String s : list) {
-                output.append(s);
-                output.append("\\n");
-            }
-            /*  descending order
+            //Die älteste Abfrage soll als letzte auftauchen
                 for (int i = list.size()-1; i >= 0; i--){
                 output.append(list.get(i));
                 if( i > 0){
                     output.append("\\n");
                 }
-            }*/
-            return output.substring(0,output.length()-2); // entfernt letzte \\n
+            }
+            return output.toString();
         }
         catch (Exception e){
             return WRONG;
         }
     }
-    private static String listAll(List <String> list, int lastRequests){
+
+    /**
+     *  Lists n requests
+     * @param list alle bisher angekommene requests außer HISTORY selbst
+     * @param lastRequests begrenzt die Anzahl der zurückgegebenen Abfragen
+     * @return Gibt die Liste der bisherige Abfragen als String zurück
+     */
+    private static String listNlast(List <String> list, int lastRequests){
         try{
             if(lastRequests < 0){
                 throw new IllegalArgumentException();
             }
             StringBuilder output = new StringBuilder();
             if( list.isEmpty()) {
-                return "ERROR Keine Historie vorhanden!";
+                return NO_HISTORY;
             }
             else if (lastRequests >= list.size()){
                 return listAll(list);
             }
             else
-            {
-                for( int i = list.size() - lastRequests; i < list.size() ; i++){
+            {    //Die älteste Abfrage soll als letzte auftauchen
+                for( int i = list.size()-1; i >= list.size() - lastRequests; i--){
                     output.append(list.get(i));
-                    output.append("\\n");
+                    if(i > list.size() -lastRequests) {
+                        output.append("\\n");
+                    }
                 }
             }
 
-            return output.substring(0,output.length()-2); // entfernt letzte \\n
+            return output.toString();
         }
         catch (Exception e){
             return WRONG;
         }
     }
+
+    /**
+     * Nach jede neue Verbindung wird die History gelöscht
+     */
     public void resetList(){
         history.clear();
     }
 }
+
+/**
+*                ____________________
+ *              |                   |
+ *             |     Bitte         |
+ *            | lass uns bestehen.|
+ *           |                   |
+ *          |___________________|
+ *          (\__/) ||
+ *          (•ㅅ•) ||
+ *          / 　 づ
+*
+**/
