@@ -22,7 +22,7 @@ public class ServerServices {
         ArrayList<String> tmp = findCMD(request);
         if(!tmp.get(0).isEmpty()) {
             try {
-                if (!request.startsWith("HISTORY ") && !request.startsWith("DISCARD ")) {
+                if (!request.startsWith("HISTORY ") && !request.startsWith("DISCARD ") && !request.equals("HISTORY")) {
                     history.add(request); // Alle Anfragen werden in History aufgenommen, außer DISCARD und HISTORY (HISTORY wird erst nach der Bearbeitung aufgenommen)
                 }
                 switch (tmp.get(0)) { // Wählt je nach eingegebenen Befehl die richtige Funktionalität aus
