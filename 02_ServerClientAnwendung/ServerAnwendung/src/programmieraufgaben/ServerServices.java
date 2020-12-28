@@ -22,7 +22,7 @@ public class ServerServices {
         ArrayList<String> tmp = findCMD(request);
         if(!tmp.get(0).isEmpty()) {
             try {
-                if (!request.startsWith("HISTORY") && !request.startsWith("DISCARD")) {
+                if (!request.startsWith("HISTORY ") && !request.startsWith("DISCARD ") && !request.equals("DISCARD") && !request.equals("HISTORY")) {
                     history.add(request); // Alle Anfragen werden in History aufgenommen, außer DISCARD und HISTORY (HISTORY wird erst nach der Bearbeitung aufgenommen)
                 }
                 switch (tmp.get(0)) { // Wählt je nach eingegebenen Befehl die richtige Funktionalität aus
@@ -105,7 +105,7 @@ public class ServerServices {
         Pattern pat = Pattern.compile("\\S+");
         Matcher m = pat.matcher(request);
         // Sonderfall, da nach dem Befehl ein beliebiges Muster folgen kann
-        if(request.matches("(ECHO|DISCARD)\\b.*")){
+        if(request.matches("(ECHO|DISCARD)\\b\\s.*")){
             String[] test = request.split("(?<=ECHO|DISCARD)");
             arr = new ArrayList<>(Arrays.asList(test));
             return arr;
@@ -126,7 +126,7 @@ public class ServerServices {
         if (request.matches("(ADD|SUB|MUL|DIV)\\b\\s(-|\\+)?\\d+\\s(-|\\+)?\\d+") && arr.size() == 3){
             return arr;
         }
-        else if(request.matches("(GET)\\b.*") && arr.size() == 2){
+        else if(request.matches("(GET)\\b\\s\\w+\\b") && arr.size() == 2){
             return arr;
         }
         else if(request.matches("(PING)\\b") && arr.size() == 1){
