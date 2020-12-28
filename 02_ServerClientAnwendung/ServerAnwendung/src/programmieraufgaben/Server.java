@@ -8,11 +8,6 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * Die Server-Klasse enthält alle Methoden zum Erstellen, Verwenden und Schließen des Servers.
- *
- * Für die Lösung der Aufgabe müssen die Methoden execute, disconnect
- * und checkPort befüllt werden.
- * Es dürfen beliebig viele Methoden und Klassen erzeugt werden, solange
- * die von den oben genannten Methoden aufgerufen werden.
  */
 public class Server{
     private int port;
@@ -39,21 +34,21 @@ public class Server{
                     }
                 }
                 catch (SocketException e){
-                    System.out.println(System.lineSeparator() + "Die Verbindung wurde abgebrochen");
+                    System.out.println(System.lineSeparator() + "Die Verbindung wurde unterbrochen.");
                 }
                 catch (Exception e){
-                    System.out.println(System.lineSeparator() + "Oops, uns ist folgende Fehler unterlaufen:" + System.lineSeparator());
+                    System.out.println(System.lineSeparator() + "Oops, uns ist folgender Fehler unterlaufen:" + System.lineSeparator());
                     e.printStackTrace();
                 }
                 finally {
-                    handler.resetList();
+                    handler.resetList(); // Leert die History
                     connectionSocket.close();
                 }
-            }while (true);
+            } while (true);
         }
         catch (SocketException e){
-                System.out.println(System.lineSeparator() + "Die Verbindung vom Client ist abgebrochen");
-                execute();
+                System.out.println(System.lineSeparator() + "Die Verbindung zum Client wurde unterbrochen.");
+                execute(); // Ist die Verbindugn zu einem Client beendet worden, wartet der Server auf den nächsten Client
         }
         catch (Exception e){
             e.printStackTrace();
@@ -62,13 +57,13 @@ public class Server{
             }
         }
         finally {
-            handler.resetList();
+            handler.resetList(); // Leert die History
         }
 
     }
 
     /**
-     * Hier soll die Verbindung und alle Streams geschlossen werden.
+     * Hier werden die Verbindung und alle Streams geschlossen.
      */
     public void disconnect() {
         try {
@@ -78,7 +73,7 @@ public class Server{
         catch (Exception e){
 
             if (!listen.isClosed()){
-                System.out.println("Ein Fehler ist aufgetreten");
+                System.out.println("Ein Fehler ist aufgetreten.");
                 e.printStackTrace();
             }
         }
@@ -86,24 +81,24 @@ public class Server{
     }
 
     /**
-     * Überprüfung der Port-Nummer und Speicherung dieser in die Klassen-Variable "port"
+     * Überprüfung der Portnummer und Speicherung dieser im Attribut "port"
      * @param port Portnummer als String
-     * @return Port-Nummer ist akzeptabel TRUE oder nicht FALSE
+     * @return Portnummer ist akzeptabel TRUE sonst FALSE
      */
     public boolean checkPort(String port) {
         int tmpPort = 0;
         try{
-            tmpPort = Integer.parseInt(port);
+            tmpPort = Integer.parseInt(port); // Überprüfung, ob ein Integer als Port eingegeben wurde
         }
         catch (NumberFormatException e){
             System.out.println("Kein korrekter Port! Aktuell ist nur Port 2020 möglich.");
             System.exit(1);
         }
         try{
-            if(tmpPort != 2020){
+            if(tmpPort != 2020){ // Überprüfung, ob der einzig zulässige Port 2020 gewählt wurde
                 throw new IllegalArgumentException();
             }
-            ServerSocket serverSocket = new ServerSocket(tmpPort);
+            ServerSocket serverSocket = new ServerSocket(tmpPort); // Nach korrekter Portwahl wird der Server gestartet
             this.port = tmpPort;
             serverSocket.close();
             return true;
@@ -123,8 +118,8 @@ public class Server{
     }
 
     /**
-     * Gibt die akzeptierte und gespeicherte Port-Nummer zurück
-     * @return Gibt die akzeptierte und gespeicherte Port-Nummer zurück
+     * Gibt die akzeptierte und gespeicherte Portnummer zurück
+     * @return die akzeptierte und gespeicherte Portnummer
      */
     public int getPort() {
         return port;

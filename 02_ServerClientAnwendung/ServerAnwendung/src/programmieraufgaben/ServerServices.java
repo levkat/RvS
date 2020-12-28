@@ -13,10 +13,9 @@ public class ServerServices {
     private static List<String> history = new LinkedList<>();
 
     /**
-     * Methode, die anhand der Userseingabe die richtige zu auszuführende Methode in kombination mit dem Befehl auswählt.
-     * @param request aus inputstream
-     *                wird falls nötig in findCMD getrennt in einzelne Tokens getrennt und auf richtigkeit überfprüft.
-     * @return response / antwort des Servers
+     * Methode, die anhand der Usereingabe die richtige auszuführende Methode in Kombination mit dem Befehl auswählt.
+     * @param request aus inputstream; wird falls nötig in findCMD in einzelne Tokens getrennt und auf Richtigkeit überfprüft.
+     * @return Antwort des Servers
      */
     public static String handleRequest(String request){
         String res = "";
@@ -24,9 +23,9 @@ public class ServerServices {
         if(!tmp.get(0).isEmpty()) {
             try {
                 if (!request.startsWith("HISTORY") && !request.startsWith("DISCARD")) {
-                    history.add(request); // Alle Anfragen werden in Hisotry aufgenommen, ausser DISCARD und HISTORY(HISTORY wird erst nach der Bearbeitung aufgenommen)
+                    history.add(request); // Alle Anfragen werden in History aufgenommen, außer DISCARD und HISTORY (HISTORY wird erst nach der Bearbeitung aufgenommen)
                 }
-                switch (tmp.get(0)) {
+                switch (tmp.get(0)) { // Wählt je nach eingegebenen Befehl die richtige Funktionalität aus
                     case "GET":
                         res = getDateTime(tmp.get(1));
                         break;
@@ -60,7 +59,7 @@ public class ServerServices {
                     case "HISTORY":
                         res = "HISTORY ";
                         if (tmp.size() == 1) {
-                            //Überprüft, ob es eine Fehlermeldung ausgegeben wurde
+                            // Überprüft, ob eine Fehlermeldung ausgegeben wurde
                             if(listAll(history).equals(NO_HISTORY)){
                                 history.add(request);
                                 res = "";
@@ -97,7 +96,7 @@ public class ServerServices {
     }
 
     /**
-     * Erkennt und Trennt die Befehle nach die vorgegbene Mustern und überprüft auf Korrektheit
+     * Erkennt und trennt die Befehle nach den vorgegebenen Mustern und überprüft diese auf Korrektheit
      * @param request Eingabe des Users
      * @return Liste der Elemente des Befehls
      */
@@ -105,25 +104,25 @@ public class ServerServices {
         ArrayList<String> arr = new ArrayList<>();
         Pattern pat = Pattern.compile("\\S+");
         Matcher m = pat.matcher(request);
-        //Sonderfall, da nach dem Befehl kein bestimmten Muster
+        // Sonderfall, da nach dem Befehl ein beliebiges Muster folgen kann
         if(request.matches("(ECHO|DISCARD)\\b.*")){
             String[] test = request.split("(?<=ECHO|DISCARD)");
             arr = new ArrayList<>(Arrays.asList(test));
             return arr;
         }
-        //Überprüfung, ob ein richtigen Befehl in der Eingabe des Users sich befindet
+        // Überprüfung, ob ein richtiger Befehl in der Eingabe des Users enthalten ist
         if (request.matches("(GET|ADD|SUB|MUL|DIV|PING|HISTORY)\\b.*")){
-            //Trennung nach nicht leerzeichen, könnte auch theoretisch mit split() nach leerzeichen getrennt werden.
+            // Trennung nach nicht Leerzeichen, könnte auch theoretisch mit split() nach Leerzeichen getrennt werden.
             while(m.find()){
                 arr.add(m.group());
             }
         }
         else {
-            //history.add(request);
+            // history.add(request);
             arr.add(UNKNOWN);
             return arr;
         }
-        //Ab hier überprüfung jeder Befehl nach dem richtigen Muster.
+        // Überprüfung, ob das Format des gültigen eingegebenen Befehls zulässig ist
         if (request.matches("(ADD|SUB|MUL|DIV)\\b\\s(-|\\+)?\\d+\\s(-|\\+)?\\d+") && arr.size() == 3){
             return arr;
         }
@@ -141,15 +140,15 @@ public class ServerServices {
         }
         else {
             arr.clear();
-            arr.add("OOPS"); //falls ein falsches Format auftaucht für den requestHandler
+            arr.add("OOPS"); // falls ein falsches Format auftaucht für den requestHandler
             return arr;
         }
     }
 
     /**
-     * Diese Methode gibt Datum oder Zeit zurück
+     * Diese Methode gibt das heutige Datum oder die aktuelle Zeit zurück
      * @param datetime Date oder Time request
-     * @return Zeit oder Datum
+     * @return Zeit bzw. Datum
      */
     private static String getDateTime(String datetime){
         String res;
@@ -167,7 +166,7 @@ public class ServerServices {
     }
 
     /**
-     * Calculator
+     * Führt die durch das arithmetische Zeichen definierte mathematische Operation auf den beiden übergebenen Zahlen durch.
      * @param first Zahl
      * @param second Zahl
      * @param operator arithmetisches Zeichen
@@ -201,10 +200,14 @@ public class ServerServices {
                     break;
 
                 case '/':
-                    if (a != 0 && b != 0) {
-                        if (a >= b) {
-                            res += a / b;
+                    if(b != 0) {
+                        if(a == 0){
+                            res += "0";
                         } else {
+                    //if (a != 0 && b != 0) {
+                        /*if (a >= b) {
+                            res += a / b;
+                        } else {*/
                             float floaty = (float) a / (float) b;
                             res += floaty;
                         }
@@ -222,12 +225,12 @@ public class ServerServices {
             return WRONG;
         }
     }
-    //TODO JAVA Docs @Lea
 
     /**
-     * History full
+     * Gibt die bisherige Eingabehistorie des Users als String zurück. Dabei werden die jüngsten Anfragen zuerst gelistet.
+     *
      * @param list alle bisher angekommene requests außer HISTORY selbst
-     * @return Gibt die Liste der bisherige Abfragen als String zurück
+     * @return Gibt die Liste der bisherigen Abfragen als String zurück
      */
     private static String listAll(List <String> list){
         if( list.isEmpty()) {
@@ -235,7 +238,7 @@ public class ServerServices {
         }
         try{
             StringBuilder output = new StringBuilder();
-            //Die älteste Abfrage soll als letzte auftauchen
+            // Die älteste Abfrage soll als letzte auftauchen
                 for (int i = list.size()-1; i >= 0; i--){
                 output.append(list.get(i));
                 if( i > 0){
@@ -250,10 +253,12 @@ public class ServerServices {
     }
 
     /**
-     *  Lists n requests
+     * Gibt die n jüngsten Anfragen des Users zurück oder die gesamte Historie, wenn n größer als die Anzahl der bisher gestellten Anfragen ist.
+     * Dabei wird die jüngste Anfrage zuerst gelistet.
+     *
      * @param list alle bisher angekommene requests außer HISTORY selbst
      * @param lastRequests begrenzt die Anzahl der zurückgegebenen Abfragen
-     * @return Gibt die Liste der bisherige Abfragen als String zurück
+     * @return Gibt die Liste der bisherigen Abfragen als String zurück
      */
     private static String listNlast(List <String> list, int lastRequests){
         try{
@@ -268,7 +273,7 @@ public class ServerServices {
                 return listAll(list);
             }
             else
-            {    //Die älteste Abfrage soll als letzte auftauchen
+            {    // Die älteste Abfrage soll als letzte auftauchen
                 for( int i = list.size()-1; i >= list.size() - lastRequests; i--){
                     output.append(list.get(i));
                     if(i > list.size() -lastRequests) {
@@ -285,22 +290,9 @@ public class ServerServices {
     }
 
     /**
-     * Nach jede neue Verbindung wird die History gelöscht
+     * Nach jeder neuen Verbindung wird die History gelöscht
      */
     public void resetList(){
         history.clear();
     }
 }
-
-/**
-*                ____________________
- *              |                   |
- *             |     Bitte         |
- *            | lass uns bestehen.|
- *           |                   |
- *          |___________________|
- *          (\__/) ||
- *          (•ㅅ•) ||
- *          / 　 づ
-*
-**/
