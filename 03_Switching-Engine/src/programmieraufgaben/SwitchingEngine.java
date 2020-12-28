@@ -46,7 +46,7 @@ public class SwitchingEngine {
     /**
      * Diese Methode überprüft und interpretiert die Eingaben und führt
      * die geforderten Funktionen aus.
-     * @param command Anweisung die der Switch verarbeiten soll
+     * @param command Anweisung, die der Switch verarbeiten soll
      * @return Gibt an ob der Switch beendet werden soll: TRUE beenden, FALSE weitermachen
      */
     public boolean handleCommand(String command) {
@@ -64,17 +64,17 @@ public class SwitchingEngine {
         }catch (Exception e){ System.out.println(WRONG); return false; }
             switch (arr.get(0)) {
                 case "frame":
-                    if (Integer.parseInt(arr.get(1)) > ports.length ){
-                        System.out.println("\nDer von Ihnen ausgewählten Port: " + arr.get(1) + " befindet sich außerhalb, die von Ihnen gewünschten Anzahl an Ports(" + ports.length + ") im Switch\n");
+                    if (Integer.parseInt(arr.get(1)) > ports.length - 1 ){
+                        System.out.println("\nDer von Ihnen ausgewählten Port: " + arr.get(1) + " befindet sich außerhalb, der von Ihnen gewünschten Anzahl an Ports(" + ports.length + ") im Switch.\n");
                         return false;
                     }
                     if (!arr.get(2).matches("\\b(1?[0-9]{1,2}|2[0-4][0-9]|25[0-4])\\b")){
-                        System.out.println("\nDie von Ihnen eingegbene Senderadresse: " + arr.get(2) + " befindet sich außerhalb die Erlaubten Adressen 1-254\n" );
+                        System.out.println("\nDie von Ihnen eingegebene Senderadresse: " + arr.get(2) + " befindet sich außerhalb der erlaubten Adressen 1-254.\n" );
                         return false;
                 }
 
                     if(!arr.get(3).matches("\\b(1?[0-9]{1,2}|2[0-4][0-9]|25[0-5])\\b")){
-                        System.out.println("\nDie von Ihnen eingegbene Zieladresse: " + arr.get(3) + " befindet sich außerhalb die Erlaubten Adressen 1-255\n" );
+                        System.out.println("\nDie von Ihnen eingegebene Zieladresse: " + arr.get(3) + " befindet sich außerhalb der erlaubten Adressen 1-255.\n" );
                         return false;
                 }
                     addFrame(Integer.parseInt(arr.get(1)),Integer.parseInt(arr.get(2)),Integer.parseInt(arr.get(3)));
@@ -109,7 +109,7 @@ public class SwitchingEngine {
             System.out.println("Broadcast: Ausgabe auf allen Ports außer Port"+ port + ".");
     }
     private static void addFrame(int port, int senderAddress, int targetAddress){
-        //wenn wenn Senderadresse nicht in der Tabelle
+        // wenn Senderadresse nicht in der Tabelle
         if (table[senderAddress] == null && table[targetAddress] == null){
             System.out.println("---------------");
             System.out.println("INIT");
