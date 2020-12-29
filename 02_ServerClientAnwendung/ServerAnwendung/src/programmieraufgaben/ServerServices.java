@@ -41,9 +41,9 @@ public class ServerServices {
                     case "DIV":
                         res += calc(tmp.get(1), tmp.get(2), '/');
                         break;
-                    case "ECHO":
-                        StringBuilder build = new StringBuilder("ECHO "); //TODO überflussige Loop
-                        if (!tmp.get(1).isEmpty()) {
+                    case "ECHO ":
+                        StringBuilder build = new StringBuilder("ECHO ");
+                        if (tmp.size() > 1 && !tmp.get(1).isEmpty()) {
                             for (int i = 1; i < tmp.size(); i++) {
                                     build.append(tmp.get(i));
                             }
@@ -105,10 +105,17 @@ public class ServerServices {
         Pattern pat = Pattern.compile("\\S+");
         Matcher m = pat.matcher(request);
         // Sonderfall, da nach dem Befehl ein beliebiges Muster folgen kann
-        if(request.matches("(ECHO|DISCARD)\\b\\s.*")){
-            String[] test = request.split("(?<=ECHO|DISCARD)");
-            arr = new ArrayList<>(Arrays.asList(test));
-            return arr;
+        if(request.matches("(ECHO|DISCARD)\\b.*")){
+            if (request.matches("(ECHO|DISCARD)\\b\\s.*")){
+                String[] test = request.split("(?<=ECHO\\s|DISCARD)");
+                arr = new ArrayList<>(Arrays.asList(test));
+                return arr;
+            }
+            else{
+                arr.add("OOPS");
+                return arr;
+            }
+
         }
         // Überprüfung, ob ein richtiger Befehl in der Eingabe des Users enthalten ist
         if (request.matches("(GET|ADD|SUB|MUL|DIV|PING|HISTORY)\\b.*")){
