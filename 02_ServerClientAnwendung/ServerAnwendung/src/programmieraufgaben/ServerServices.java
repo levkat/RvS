@@ -97,6 +97,15 @@ public class ServerServices {
 
     /**
      * Erkennt und trennt die Befehle nach den vorgegebenen Mustern und überprüft diese auf Korrektheit
+     *
+     * *************************
+     * *********ACHTUNG*********
+     *
+     * DISCARD MUSS MIT DISCARD<LEERZEICHEN><STRING> eingegeben werden,
+     * sonst wird ein falsches Format Warnung geworfen und in History gespeichert. 
+     *
+     * *************************
+     * *************************
      * @param request Eingabe des Users
      * @return Liste der Elemente des Befehls
      */
