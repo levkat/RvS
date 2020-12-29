@@ -21,7 +21,7 @@ public class Client {
     private PrintWriter out;
     private int targetPort;
     private String target;
-    BufferedReader in;
+    private BufferedReader in;
 
     /**
      * Hier werden die Verbindungsinformationen abgefragt und eine Verbindung eingerichtet.
