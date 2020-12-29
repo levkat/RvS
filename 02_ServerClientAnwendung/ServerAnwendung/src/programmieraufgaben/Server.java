@@ -14,6 +14,8 @@ public class Server {
     private ServerSocket listen;
     private ServerServices handler = new ServerServices();
     private Socket connectionSocket;
+    private boolean runForestRun = true;
+    private String line;
 
 
     /**
@@ -28,33 +30,27 @@ public class Server {
                     connectionSocket = listen.accept();
                     PrintWriter writer = new PrintWriter(connectionSocket.getOutputStream(), true);
                     BufferedReader input = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream(), StandardCharsets.UTF_8));
-                    String line;
                     while ((line = input.readLine()) != null) {
                         writer.println(handler.handleRequest(line));
                     }
                 } catch (SocketException e) {
-                    System.out.println(System.lineSeparator() + "Die Verbindung wurde unterbrochen.");
+                    if (e.getMessage().equals("Connection reset") ) {
+                        System.out.println(System.lineSeparator() + "Die Verbindung zum Client wurde unerwartet unterbrochen." + System.lineSeparator());
+                    }
                 } catch (Exception e) {
                     System.out.println(System.lineSeparator() + "Oops, uns ist folgender Fehler unterlaufen:" + System.lineSeparator());
                     e.printStackTrace();
                 } finally {
-                    handler.resetList(); // Leert die History
-                    //if (connectionSocket != null) {
-                        connectionSocket.close();
-                        //connectionSocket = null;
-                    //}
+                    handler.resetList(); // Leert die History nach jeder Verbindung
                 }
-            } while (true);
-        } catch (SocketException e) {
-            System.out.println(System.lineSeparator() + "Die Verbindung zum Client wurde unterbrochen.");
-            execute(); // Ist die Verbindung zu einem Client beendet worden, wartet der Server auf den nächsten Client
+            } while (runForestRun);
+        } catch (IOException e) {
+            System.out.println(System.lineSeparator() + "Socket konnte nicht initialiesiert werden.");
         } catch (Exception e) {
             e.printStackTrace();
             if (!listen.isClosed()) {
                 e.printStackTrace();
             }
-        } finally {
-            handler.resetList(); // Leert die History
         }
 
     }
@@ -64,8 +60,14 @@ public class Server {
      */
     public void disconnect() {
         try {
-            listen.close();
-            System.exit(0);
+            if (connectionSocket != null) {
+                connectionSocket.close();
+            }
+            if (listen != null) {
+                listen.close();
+            }
+            //System.exit(0);
+            runForestRun = false;
         } catch (Exception e) {
 
             if (!listen.isClosed()) {
@@ -99,7 +101,7 @@ public class Server {
             serverSocket.close();
             return true;
         } catch (IOException e) {
-            System.out.println("Fehler beim Verbindungsaufbau! Es konnte keine TCP-Verbindung zum Server mit\n" +
+            System.out.println("Der Server konnte nicht initialisiert werden! Es konnte keine TCP-Verbindung zum Server mit\n" +
                     "IP-Adresse localhost (Port: " + port + ") hergestellt werden.");
             return false;
         } catch (IllegalArgumentException e) {

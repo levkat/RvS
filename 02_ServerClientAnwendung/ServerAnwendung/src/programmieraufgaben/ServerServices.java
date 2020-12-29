@@ -42,7 +42,7 @@ public class ServerServices {
                         res += calc(tmp.get(1), tmp.get(2), '/');
                         break;
                     case "ECHO":
-                        StringBuilder build = new StringBuilder("ECHO ");
+                        StringBuilder build = new StringBuilder("ECHO "); //TODO überflussige Loop
                         if (!tmp.get(1).isEmpty()) {
                             for (int i = 1; i < tmp.size(); i++) {
                                     build.append(tmp.get(i));
