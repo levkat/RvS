@@ -1,14 +1,9 @@
 package programmieraufgaben;
 
-import javax.swing.text.html.parser.Entity;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,7 +41,7 @@ public class SwitchingEngine {
     /**
      * Diese Methode überprüft und interpretiert die Eingaben und führt
      * die geforderten Funktionen aus.
-     * @param command Anweisung die der Switch verarbeiten soll
+     * @param command Anweisung, die der Switch verarbeiten soll
      * @return Gibt an ob der Switch beendet werden soll: TRUE beenden, FALSE weitermachen
      */
     public boolean handleCommand(String command) {
@@ -64,17 +59,17 @@ public class SwitchingEngine {
         }catch (Exception e){ System.out.println(WRONG); return false; }
             switch (arr.get(0)) {
                 case "frame":
-                    if (Integer.parseInt(arr.get(1)) > ports.length ){
-                        System.out.println("\nDer von Ihnen ausgewählten Port: " + arr.get(1) + " befindet sich außerhalb, die von Ihnen gewünschten Anzahl an Ports(" + ports.length + ") im Switch\n");
+                    if (Integer.parseInt(arr.get(1)) > ports.length - 1  || Integer.parseInt(arr.get(1)) <= 0){
+                        System.out.println("\nDer von Ihnen ausgewählten Port: " + arr.get(1) + " ist ungültig, nur die Ports 1 bis "+  (ports.length - 1) + " sind erlaubt und befinden sich im Switch.\n");
                         return false;
                     }
                     if (!arr.get(2).matches("\\b(1?[0-9]{1,2}|2[0-4][0-9]|25[0-4])\\b")){
-                        System.out.println("\nDie von Ihnen eingegbene Senderadresse: " + arr.get(2) + " befindet sich außerhalb die Erlaubten Adressen 1-254\n" );
+                        System.out.println("\nDie von Ihnen eingegebene Senderadresse: " + arr.get(2) + " befindet sich außerhalb der erlaubten Adressen 1-254.\n" );
                         return false;
                 }
 
                     if(!arr.get(3).matches("\\b(1?[0-9]{1,2}|2[0-4][0-9]|25[0-5])\\b")){
-                        System.out.println("\nDie von Ihnen eingegbene Zieladresse: " + arr.get(3) + " befindet sich außerhalb die Erlaubten Adressen 1-255\n" );
+                        System.out.println("\nDie von Ihnen eingegebene Zieladresse: " + arr.get(3) + " befindet sich außerhalb der erlaubten Adressen 1-255.\n" );
                         return false;
                 }
                     addFrame(Integer.parseInt(arr.get(1)),Integer.parseInt(arr.get(2)),Integer.parseInt(arr.get(3)));
@@ -104,12 +99,13 @@ public class SwitchingEngine {
     //TODO Broadcast fall behandeln
     private static void broadcoast(int port){
             for (int i = 0; i < ports.length; i++) {
+                if (i != port)
                 ports[i]++;
             }
-            System.out.println("Broadcast: Ausgabe auf allen Ports außer Port"+ port + ".");
+            System.out.print("Ausgabe auf allen Ports außer Port "+ port + "." + System.lineSeparator());
     }
     private static void addFrame(int port, int senderAddress, int targetAddress){
-        //wenn wenn Senderadresse nicht in der Tabelle
+        // wenn Senderadresse nicht in der Tabelle
         if (table[senderAddress] == null && table[targetAddress] == null){
             System.out.println("---------------");
             System.out.println("INIT");
@@ -119,13 +115,23 @@ public class SwitchingEngine {
              * INIT
              */
             table[senderAddress] = (new tableEntry(port));
+            ports[port]++;
             /**
              * BROADCAST
-             */
+             */ //TODO check
+            if (targetAddress != 255) {
+                broadcoast(table[senderAddress].getPort());
+            }
+            else{
+                System.out.print("Broadcast: ");
+                broadcoast(table[senderAddress].getPort());
+            }
+            /*
             for (int i = 0; i < ports.length; i++) {
                     ports[i]++;
             }
             System.out.println("Ausgabe auf allen Ports außer Port " + port + ".");
+             */
         }
 
         else if (table[senderAddress] == null && table[targetAddress] != null && table[targetAddress].getPort() != port){
@@ -138,7 +144,7 @@ public class SwitchingEngine {
 
             ports[table[targetAddress].getPort()]++; //added
             ports[port]++; //added
-            System.out.println("Ausgabe auf Port " + table[senderAddress].getPort() + ".");
+            System.out.println("Ausgabe auf Port " + table[targetAddress].getPort() + ".");
         }
         else if (table[senderAddress] == null && table[targetAddress] != null && table[targetAddress].getPort() == port){
             System.out.println("---------------");
@@ -156,16 +162,18 @@ public class SwitchingEngine {
             table[senderAddress] = new tableEntry(port);
             //ports[table[targetAddress].getPort()]++; //added
             ports[port]++; //added
-            System.out.println("Ausgabe auf Port " + table[senderAddress].getPort() + ".");
+            broadcoast(table[senderAddress].getPort());
+            //System.out.println("Ausgabe auf Port " + table[senderAddress].getPort() + ".");
         }
         //Zieladresse existiert in Table und zieladresse != senderadresse und eingetragene Zieladresse besitzt gleichen port wie senderadresse(Mehere Adressen auf gleichen Port).
-        else if ((table[senderAddress] != null && table[targetAddress] != null) && table[senderAddress] != table[targetAddress] && (table[senderAddress].getPort() == port)){
+        else if ((table[senderAddress] != null && table[targetAddress] != null) && table[senderAddress] != table[targetAddress] && (table[targetAddress].getPort() == port)){
             System.out.println("---------------");
             System.out.println("Mehrere Adressen auf gleichen Port");
             System.out.println("---------------");
             table[senderAddress] = new tableEntry(port);
-            ports[table[targetAddress].getPort()]++;
+            ports[table[senderAddress].getPort()]++;
             if(targetAddress == 255){
+                System.out.print("Broadcast: ");
                 broadcoast(port);
             }
             else {
@@ -187,9 +195,13 @@ public class SwitchingEngine {
             table[senderAddress].setPort(port);
             ports[table[senderAddress].getPort()]++;
             if(targetAddress == 255){
+                System.out.print("Broadcast: ");
                 broadcoast(port);
             }
             else {
+                System.out.println("---------------");
+                System.out.println("no broadcast");
+                System.out.println("---------------");
                 System.out.println("Ausgabe auf Port " + table[targetAddress].getPort());
                 ports[table[targetAddress].getPort()]++;
             }

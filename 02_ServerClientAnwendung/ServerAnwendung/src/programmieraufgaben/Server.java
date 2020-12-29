@@ -8,77 +8,70 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * Die Server-Klasse enthält alle Methoden zum Erstellen, Verwenden und Schließen des Servers.
- *
- * Für die Lösung der Aufgabe müssen die Methoden execute, disconnect
- * und checkPort befüllt werden.
- * Es dürfen beliebig viele Methoden und Klassen erzeugt werden, solange
- * die von den oben genannten Methoden aufgerufen werden.
  */
-public class Server{
+public class Server {
     private int port;
     private ServerSocket listen;
     private ServerServices handler = new ServerServices();
     private Socket connectionSocket;
+    private boolean runForestRun = true;
+    private String line;
 
 
     /**
      * Diese Methode beinhaltet die gesamte Ausführung (Verbindungsaufbau und Beantwortung
      * der Client-Anfragen) des Servers.
      */
-    public void execute(){
-        try{
+    public void execute() {
+        try {
             listen = new ServerSocket(port);
             do {
                 try {
                     connectionSocket = listen.accept();
                     PrintWriter writer = new PrintWriter(connectionSocket.getOutputStream(), true);
                     BufferedReader input = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream(), StandardCharsets.UTF_8));
-                    String line;
                     while ((line = input.readLine()) != null) {
                         writer.println(handler.handleRequest(line));
                     }
-                }
-                catch (SocketException e){
-                    System.out.println(System.lineSeparator() + "Die Verbindung wurde abgebrochen");
-                }
-                catch (Exception e){
-                    System.out.println(System.lineSeparator() + "Oops, uns ist folgende Fehler unterlaufen:" + System.lineSeparator());
+                } catch (SocketException e) {
+                    if (e.getMessage().equals("Connection reset") ) {
+                        System.out.println(System.lineSeparator() + "Die Verbindung zum Client wurde unerwartet unterbrochen." + System.lineSeparator());
+                    }
+                } catch (Exception e) {
+                    System.out.println(System.lineSeparator() + "Oops, uns ist folgender Fehler unterlaufen:" + System.lineSeparator());
                     e.printStackTrace();
+                } finally {
+                    handler.resetList(); // Leert die History nach jeder Verbindung
                 }
-                finally {
-                    handler.resetList();
-                    connectionSocket.close();
-                }
-            }while (true);
-        }
-        catch (SocketException e){
-                System.out.println(System.lineSeparator() + "Die Verbindung vom Client ist abgebrochen");
-                execute();
-        }
-        catch (Exception e){
+            } while (runForestRun);
+        } catch (IOException e) {
+            System.out.println(System.lineSeparator() + "Socket konnte nicht initialiesiert werden.");
+        } catch (Exception e) {
             e.printStackTrace();
-            if (!listen.isClosed()){
+            if (!listen.isClosed()) {
                 e.printStackTrace();
             }
-        }
-        finally {
-            handler.resetList();
         }
 
     }
 
     /**
-     * Hier soll die Verbindung und alle Streams geschlossen werden.
+     * Hier werden die Verbindung und alle Streams geschlossen.
      */
     public void disconnect() {
         try {
-            listen.close();
-            System.exit(0);
-        }
-        catch (Exception e){
+            if (connectionSocket != null) {
+                connectionSocket.close();
+            }
+            if (listen != null) {
+                listen.close();
+            }
+            //System.exit(0);
+            runForestRun = false;
+        } catch (Exception e) {
 
-            if (!listen.isClosed()){
-                System.out.println("Ein Fehler ist aufgetreten");
+            if (!listen.isClosed()) {
+                System.out.println("Ein Fehler ist aufgetreten.");
                 e.printStackTrace();
             }
         }
@@ -86,36 +79,34 @@ public class Server{
     }
 
     /**
-     * Überprüfung der Port-Nummer und Speicherung dieser in die Klassen-Variable "port"
+     * Überprüfung der Portnummer und Speicherung dieser im Attribut "port"
+     *
      * @param port Portnummer als String
-     * @return Port-Nummer ist akzeptabel TRUE oder nicht FALSE
+     * @return Portnummer ist akzeptabel TRUE sonst FALSE
      */
     public boolean checkPort(String port) {
         int tmpPort = 0;
-        try{
-            tmpPort = Integer.parseInt(port);
-        }
-        catch (NumberFormatException e){
+        try {
+            tmpPort = Integer.parseInt(port); // Überprüfung, ob ein Integer als Port eingegeben wurde
+        } catch (NumberFormatException e) {
             System.out.println("Kein korrekter Port! Aktuell ist nur Port 2020 möglich.");
             System.exit(1);
         }
-        try{
-            if(tmpPort != 2020){
+        try {
+            if (tmpPort != 2020) { // Überprüfung, ob der einzig zulässige Port 2020 gewählt wurde
                 throw new IllegalArgumentException();
             }
-            ServerSocket serverSocket = new ServerSocket(tmpPort);
+            ServerSocket serverSocket = new ServerSocket(tmpPort); // Nach korrekter Portwahl wird der Server gestartet
             this.port = tmpPort;
             serverSocket.close();
             return true;
-        } catch (IOException e){
-            System.out.println("Fehler beim Verbindungsaufbau! Es konnte keine TCP-Verbindung zum Server mit\n" +
+        } catch (IOException e) {
+            System.out.println("Der Server konnte nicht initialisiert werden! Es konnte keine TCP-Verbindung zum Server mit\n" +
                     "IP-Adresse localhost (Port: " + port + ") hergestellt werden.");
             return false;
-        }
-        catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             System.out.println("Kein korrekter Port! Aktuell ist nur Port 2020 möglich.");
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             System.out.println("Unerwartete Fehler aufgetaucht:");
             System.out.println(e.getMessage());
         }
@@ -123,8 +114,9 @@ public class Server{
     }
 
     /**
-     * Gibt die akzeptierte und gespeicherte Port-Nummer zurück
-     * @return Gibt die akzeptierte und gespeicherte Port-Nummer zurück
+     * Gibt die akzeptierte und gespeicherte Portnummer zurück
+     *
+     * @return die akzeptierte und gespeicherte Portnummer
      */
     public int getPort() {
         return port;
