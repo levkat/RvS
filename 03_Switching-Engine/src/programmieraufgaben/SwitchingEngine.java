@@ -31,6 +31,10 @@ public class SwitchingEngine {
             System.out.println("Nur natürliche Zahlen ab 1 sind erlaubt.");
             return false;
         }
+        if (portNumber > 65535){
+            System.out.println("Maximale erlaubte Port Anzahl ist 65535");
+            return false;
+        }
         ports = new int[portNumber + 1]; // Jeder Index entspricht dem jeweiligen Port; an der Arrayposition jedes Ports wird seine Nutzungsanzahl gespeichert
         table = new TableEntry[256];
         System.out.println("\nEin " + portNumber + "-Port-Switch wurde erzeugt.\n");
@@ -63,7 +67,7 @@ public class SwitchingEngine {
         // Überprüfung, ob die Syntax bzw. die Parameter des eingegebenen Befehls korrekt sind
         switch (arr.get(0)) {
             case "frame":
-                if (Integer.parseInt(arr.get(1)) > ports.length - 1 || Integer.parseInt(arr.get(1)) <= 0) {
+                if (Integer.parseInt(arr.get(1)) > ports.length - 1 || Integer.parseInt(arr.get(1)) <= 0  || !arr.get(1).matches("^[1-9][0-9]{0," + (String.valueOf(arr.get(1)).length() - 1) + "}$")){
                     System.out.println("\nDer von Ihnen ausgewählten Port: " + arr.get(1) + " ist ungültig, nur die Ports 1 bis " + (ports.length - 1) + " sind erlaubt und befinden sich im Switch.\n");
                     return false;
                 }
