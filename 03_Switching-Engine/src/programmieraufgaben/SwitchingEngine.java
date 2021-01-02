@@ -247,23 +247,25 @@ public class SwitchingEngine {
         LocalTime actual_timeStamp = java.time.LocalTime.now();
         LocalTime oldestStamp = actual_timeStamp;
         if (unit.equals("min")) {
-            System.out.println("minutes");
             oldestStamp = actual_timeStamp.minusMinutes(time);
         } else if (unit.equals("s")) {
-            System.out.println("seconds");
             oldestStamp = actual_timeStamp.minusSeconds(time);
         }
         if (!oldestStamp.equals(actual_timeStamp)) {
-            System.out.println(oldestStamp.equals(actual_timeStamp));
-            System.out.println("delete loop");
-            System.out.println("Actual Time: " + actual_timeStamp.toString());
-            System.out.println("Delete limit: " + oldestStamp.toString());
+            StringBuilder deleted = new StringBuilder("Folgende Adressen wurden aus der Switch-Tabelle gelöscht: ");
+            boolean sthDeleted = false;
             for (int i = 0; i < table.length; i++) {
                 // Löschen aller vorhandenen Einträge, die älter als gewünscht sind
                 if (table[i] != null && oldestStamp.isBefore(table[i].getCleanTime())) {
-                    System.out.println("deleted: " + table[i].getCleanTime().toString());
                     table[i] = null;
+                    deleted.append(i + ", ");
+                    sthDeleted = true;
                 }
+            }
+            if(sthDeleted) {
+                System.out.println(deleted.substring(0, deleted.length() - 2));
+            } else {
+                System.out.println("Es existieren keine Einträge, die älter als "  + time + unit + " sind.");
             }
         }
 
