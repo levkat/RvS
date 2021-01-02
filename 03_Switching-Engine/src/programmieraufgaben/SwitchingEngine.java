@@ -24,14 +24,14 @@ public class SwitchingEngine {
      * Diese Methode überprüft die Eingabe und erstellt die für den
      * weiteren Funktionsablauf nötige Datenstruktur
      * @param portNumber Anzahl der Ports, die der Switch verwalten soll
-     * @return Gibt bei erfolgreicher erstellung TRUE sonst FALSE zurück
+     * @return Gibt bei erfolgreicher Erstellung TRUE sonst FALSE zurück
      */
     public boolean createSwitch(int portNumber) {
         if (portNumber < 1) {
             System.out.println("Nur natürliche Zahlen ab 1 sind erlaubt.");
             return false;
         }
-        ports = new int[portNumber + 1];
+        ports = new int[portNumber + 1]; // Jeder Index entspricht dem jeweiligen Port; an der Arrayposition jedes Ports wird seine Nutzungsanzahl gespeichert
         //table = new ArrayList[portNumber];
         table = new tableEntry[256];
         System.out.println("\nEin " + portNumber +"-Port-Switch wurde erzeugt.\n");
@@ -49,6 +49,7 @@ public class SwitchingEngine {
         Pattern pat = Pattern.compile("\\S+");
         Matcher m = pat.matcher(command);
         try {
+            // Überprüfung, ob ein korrektes Befehlswort eingegeben wurde
             if (command.matches("\\b(frame)\\s\\d+\\s\\d+\\s\\d+\\b|\\b(del)\\s\\d+(s|min)\\b|^(table|statistics|exit)$")) {
 
                 while (m.find()) {
@@ -57,6 +58,7 @@ public class SwitchingEngine {
             }
             else throw new Exception();
         }catch (Exception e){ System.out.println(WRONG); return false; }
+        // Überprüfung, ob die Syntax bzw. die Parameter des eingegebenen Befehls korrekt sind
             switch (arr.get(0)) {
                 case "frame":
                     if (Integer.parseInt(arr.get(1)) > ports.length - 1  || Integer.parseInt(arr.get(1)) <= 0){
@@ -72,24 +74,24 @@ public class SwitchingEngine {
                         System.out.println("\nDie von Ihnen eingegebene Zieladresse: " + arr.get(3) + " befindet sich außerhalb der erlaubten Adressen 1-255.\n" );
                         return false;
                 }
-                    addFrame(Integer.parseInt(arr.get(1)),Integer.parseInt(arr.get(2)),Integer.parseInt(arr.get(3)));
+                    addFrame(Integer.parseInt(arr.get(1)),Integer.parseInt(arr.get(2)),Integer.parseInt(arr.get(3))); // Ist die Anfrage korrekt, wird ein Frame durch den Switch geleitet
                     break;
                 case "table":
-                    printTable(table);
+                    printTable(table); // Ist die Anfrage korrekt, wird die Table gedruckt
                     break;
                 case "statistics":
-                    printStats();
+                    printStats(); // Ist die Anfrage korrekt, wird die statistics ausgegeben
                     break;
                 case "del":
                     Pattern timePattern = Pattern.compile("(?>(\\d+))(s|min)");
                     Matcher time = timePattern.matcher(arr.get(1));
                     if (time.find( )) {
-                        del(Integer.parseInt(time.group(1)), time.group(2));
+                        del(Integer.parseInt(time.group(1)), time.group(2)); // Ist die Anfrage korrekt, werden die zu alten Einträge gelöscht
                     }
 
                     break;
                 case "exit":
-                    return true;
+                    return true; // Der Switch soll beendet werden
                 default:
                     System.out.println("\nSomething went wrong :(\n");
                     return false;
@@ -97,6 +99,11 @@ public class SwitchingEngine {
             return false;
     }
     //TODO Broadcast fall behandeln
+
+    /**
+     * Diese Methode leitet ein Frame auf alle Ports außer den übergebenen Eingangsport des Frames weiter
+     * @param port Eingangsport des zu broadcastenen Frames
+     */
     private static void broadcoast(int port){
             for (int i = 0; i < ports.length; i++) {
                 if (i != port)
@@ -104,6 +111,13 @@ public class SwitchingEngine {
             }
             System.out.print("Ausgabe auf allen Ports außer Port "+ port + "." + System.lineSeparator());
     }
+
+    /**
+     * Es wird ein Frame durch den Switch geleitet. Dabei wird die Switch-Tabelle aktualisiert.
+     * @param port Eingangsport des Frames
+     * @param senderAddress Adresse, die das Frame sendet
+     * @param targetAddress Adresse, an die das Frame gesendet werden soll
+     */
     private static void addFrame(int port, int senderAddress, int targetAddress){
         // wenn Senderadresse nicht in der Tabelle
         if (table[senderAddress] == null && table[targetAddress] == null){
@@ -141,7 +155,7 @@ public class SwitchingEngine {
             System.out.println("---------------");
 
             table[senderAddress] = new tableEntry(port);
-
+// TODO Broadcast Fall
             ports[table[targetAddress].getPort()]++; //added
             ports[port]++; //added
             System.out.println("Ausgabe auf Port " + table[targetAddress].getPort() + ".");
@@ -192,7 +206,7 @@ public class SwitchingEngine {
             System.out.println("---------------");
             System.out.println("Letzte");
             System.out.println("---------------");
-            table[senderAddress].setPort(port);
+            table[senderAddress].setPort(port); // eher auch neuen Eintrag kreieren? sonst keine Zeitaktualisierung
             ports[table[senderAddress].getPort()]++;
             if(targetAddress == 255){
                 System.out.print("Broadcast: ");
@@ -210,6 +224,12 @@ public class SwitchingEngine {
             System.out.println("OOPS! Uns ist ein Fehler unterlaufen");
         }
     }
+
+    /**
+     * Überprüft, ob ein Array von Objekten leer ist.
+     * @param list zu überprüfendes Array
+     * @return TRUE wenn leer, sonst FALSE
+     */
     private static boolean isListEmpty(tableEntry[] list){
         for (int i = 0; i < list.length; i++) {
             if (list[i] != null){
@@ -219,6 +239,10 @@ public class SwitchingEngine {
         return true;
     }
 
+    /**
+     * Gibt die aktuelle Switch-Tabelle aus, wenn diese nicht leer ist.
+     * @param listForTable aktuelle Switch-Tabelle
+     */
     private static void printTable(tableEntry[] listForTable){
         if (!isListEmpty(listForTable)) {
             //System.out.println(System.lineSeparator());
@@ -235,6 +259,11 @@ public class SwitchingEngine {
         }
     }
 
+    /**
+     * Löscht alle Einträge, die älter als gewünscht sind.
+     * @param time Minuten bzw. Sekundenanzahl, ab wann Einträge als zu alt gelten
+     * @param unit min oder s, gibt an ob time in Minuten oder Sekunden angegeben ist
+     */
     public static void del(int time, String unit){
         LocalTime actual_timeStamp = java.time.LocalTime.now();
         LocalTime oldestStamp = actual_timeStamp;
@@ -252,6 +281,7 @@ public class SwitchingEngine {
             System.out.println("Actual Time: " + actual_timeStamp.toString());
             System.out.println("Delete limit: " + oldestStamp.toString());
             for (int i = 0; i < table.length; i++){
+                // Löschen aller vorhandenen Einträge, die älter als gewünscht sind
                 if (table[i] != null && oldestStamp.isBefore(table[i].getCleanTime())){
                     System.out.println("deleted: " + table[i].getCleanTime().toString());
                     table[i] = null;
@@ -261,6 +291,9 @@ public class SwitchingEngine {
 
     }
 
+    /**
+     * Ausgabe der Nuzungsstatistik der einzelnen Ports des Switchs
+     */
     private static void printStats(){
         System.out.format("%s%7s\n","Port","Frames");
         for (int i = 1; i < ports.length; i++) {
@@ -268,10 +301,19 @@ public class SwitchingEngine {
         }
     }
 }
+
+/**
+ * Die Klasse verwaltet die Einträge für die verschiedenen Adressen in der Switch-Tabelle.
+ */
 class tableEntry {
     private int port;
     private LocalTime timeStamp;
     private DateTimeFormatter hhmmss = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+    /**
+     * Konstruktor, Zeitpunkt der Erstellung des Eintrags wird automatisch gesetzt
+     * @param port von dem aus ein Frame weitergeleitet werden soll
+     */
     public tableEntry(int port){
         this.port = port;
         this.timeStamp =  java.time.LocalTime.now();
@@ -286,5 +328,10 @@ class tableEntry {
     }
 
     public LocalTime getCleanTime(){return timeStamp;}
+
+    /**
+     * Gibt den Erstellungszeitpunkt des Tabelleneintrags formatiert zurück
+     * @return Zeit formatiert als HH:mm:ss
+     */
     public String getTimeStamp(){ return timeStamp.format(hhmmss); }
 }
