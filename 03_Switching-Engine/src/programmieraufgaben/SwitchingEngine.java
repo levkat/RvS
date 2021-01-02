@@ -3,7 +3,6 @@ package programmieraufgaben;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,7 +17,7 @@ import java.util.regex.Pattern;
 public class SwitchingEngine {
     private static final String WRONG = "Ungültige Eingabe!";
     private static int[] ports;
-    private static tableEntry[] table;
+    private static TableEntry[] table;
 
     /**
      * Diese Methode überprüft die Eingabe und erstellt die für den
@@ -33,8 +32,7 @@ public class SwitchingEngine {
             return false;
         }
         ports = new int[portNumber + 1]; // Jeder Index entspricht dem jeweiligen Port; an der Arrayposition jedes Ports wird seine Nutzungsanzahl gespeichert
-        //table = new ArrayList[portNumber];
-        table = new tableEntry[256];
+        table = new TableEntry[256];
         System.out.println("\nEin " + portNumber + "-Port-Switch wurde erzeugt.\n");
         return true;
     }
@@ -128,7 +126,7 @@ public class SwitchingEngine {
         if (table[senderAddress] == null) {
             // Fall 1.1: Zieladresse besitzt ebenfalls keinen Eintrag in der Switch-Tabelle
             if (table[targetAddress] == null) {
-                table[senderAddress] = new tableEntry(port);
+                table[senderAddress] = new TableEntry(port);
                 ports[port]++;
                 if (targetAddress != 255) {
                     broadcoast(table[senderAddress].getPort());
@@ -141,14 +139,14 @@ public class SwitchingEngine {
             else if (table[targetAddress] != null) {
                 // Fall 1.2.1: Eingangsport unterscheidet sich vom Port der Zieladresse
                 if (table[targetAddress].getPort() != port) {
-                    table[senderAddress] = new tableEntry(port);
+                    table[senderAddress] = new TableEntry(port);
                     ports[port]++;
                     ports[table[targetAddress].getPort()]++;
                     System.out.println("Ausgabe auf Port " + table[targetAddress].getPort() + ".");
                 }
                 // Fall 1.2.2: Eingangsport ist identisch mit dem Port der Zieladresse
                 else if (table[targetAddress].getPort() == port) {
-                    table[senderAddress] = new tableEntry(port);
+                    table[senderAddress] = new TableEntry(port);
                     ports[port]++;
                     System.out.println("Frame wird gefiltert und verworfen.");
                 }
@@ -158,7 +156,7 @@ public class SwitchingEngine {
         else {
             // Fall 2.1: Zieladresse besitzt keinen Eintrag in der Switch-Tabelle
             if (table[targetAddress] == null) {
-                table[senderAddress] = new tableEntry(port);
+                table[senderAddress] = new TableEntry(port);
                 ports[port]++;
                 if (targetAddress != 255) {
                     broadcoast(table[senderAddress].getPort());
@@ -173,13 +171,13 @@ public class SwitchingEngine {
                 if (senderAddress == targetAddress) {
                     // Fall 2.2.1.1: Eingangsport ist identisch zum Zielport
                     if (port == table[targetAddress].getPort()) {
-                        table[senderAddress] = new tableEntry(port);
+                        table[senderAddress] = new TableEntry(port);
                         ports[port]++;
                         System.out.println("Frame wird gefiltert und verworfen.");
                     }
                     // Fall 2.2.1.2: Eingangsport unterscheidet sich vom Zielport
                     else {
-                        table[senderAddress] = new tableEntry(port);
+                        table[senderAddress] = new TableEntry(port);
                         ports[port]++;
                         ports[table[targetAddress].getPort()]++;
                         System.out.println("Ausgabe auf Port " + table[targetAddress].getPort() + ".");
@@ -189,13 +187,13 @@ public class SwitchingEngine {
                 else {
                     // Fall 2.2.2.1: Eingangsport ist identisch zum Zielport
                     if (port == table[targetAddress].getPort()) {
-                        table[senderAddress] = new tableEntry(port);
+                        table[senderAddress] = new TableEntry(port);
                         ports[port]++;
                         System.out.println("Frame wird gefiltert und verworfen.");
                     }
                     // Fall 2.2.2.2: Eingangsport unterscheidet sich vom Zielport
                     else {
-                        table[senderAddress] = new tableEntry(port);
+                        table[senderAddress] = new TableEntry(port);
                         ports[port]++;
                         ports[table[targetAddress].getPort()]++;
                         System.out.println("Ausgabe auf Port " + table[targetAddress].getPort() + ".");
@@ -212,7 +210,7 @@ public class SwitchingEngine {
      * @param list zu überprüfendes Array
      * @return TRUE wenn leer, sonst FALSE
      */
-    private static boolean isListEmpty(tableEntry[] list) {
+    private static boolean isListEmpty(TableEntry[] list) {
         for (int i = 0; i < list.length; i++) {
             if (list[i] != null) {
                 return false;
@@ -226,16 +224,14 @@ public class SwitchingEngine {
      *
      * @param listForTable aktuelle Switch-Tabelle
      */
-    private static void printTable(tableEntry[] listForTable) {
+    private static void printTable(TableEntry[] listForTable) {
         if (!isListEmpty(listForTable)) {
-            //System.out.println(System.lineSeparator());
             System.out.format("%s%5s%5s\n", "Adresse", "Port", "Zeit");
             for (int i = 1; i < table.length; i++) {
                 if (table[i] != null) {
                     System.out.format("%7s%5s%9s\n", i, table[i].getPort(), table[i].getTimeStamp());
                 }
             }
-            //System.out.println(System.lineSeparator());
         } else {
             System.out.println("\nDie Switch-Tabelle ist leer.\n");
         }
@@ -287,7 +283,7 @@ public class SwitchingEngine {
 /**
  * Die Klasse verwaltet die Einträge für die verschiedenen Adressen in der Switch-Tabelle.
  */
-class tableEntry {
+class TableEntry {
     private int port;
     private LocalTime timeStamp;
     private DateTimeFormatter hhmmss = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -297,7 +293,7 @@ class tableEntry {
      *
      * @param port von dem aus ein Frame weitergeleitet werden soll
      */
-    public tableEntry(int port) {
+    public TableEntry(int port) {
         this.port = port;
         this.timeStamp = java.time.LocalTime.now();
     }
